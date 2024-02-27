@@ -1,35 +1,72 @@
 """RPC Server"""
 
+from threading import Condition, Thread
+from uuid import uuid4
 from xmlrpc.server import SimpleXMLRPCServer
 
-from state_machine import StateMachine
+from buffer import Buffer
+from log import Log
+from message import Message
+from operation import Operation
+from response_queue import ResponseQueue
 
 
 class RPCServer:
     """Server"""
 
-    def __init__(self):
-        self.state_machine = StateMachine()
+    def __init__(self, imq: Log, omq: ResponseQueue, co: Condition):
+        self.thread = Thread(target=self._run)
         self.server = SimpleXMLRPCServer(("0.0.0.0", 8000))
         self.server.register_instance(self)
+        self.inbound_message_queue = imq
+        self.outbound_message_queue = omq
+        self.condition = co
 
     # read y update
     def read(self, key):
         """Read"""
-        return self.state_machine.get(key)
+        uuid = uuid4()
+        self.inbound_message_queue.append(
+            Operation(action="get", key=key, value=None, uuid=uuid),
+        )
+        print("Esperando respuesta")
+        # acto criminal,debe bloquear hasta que haya una respuesta
+        response = False
+        with self.condition:
+            self.condition.wait()
+            print("Respuesta recibida")
+            response = self.outbound_message_queue.get(uuid)
+        return response
 
     def update(self, key, value, operation):
         """Update"""
-        if operation == "set":
-            return self.state_machine.set(key, value)
-        if operation == "add":
-            return self.state_machine.add(key, value)
-        if operation == "mult":
-            return self.state_machine.mult(key, value)
-        return False
+        valid_operations = ["set", "add", "mult"]
+        if operation in valid_operations:
+            uuid = uuid4()
+            self.inbound_message_queue.append(
+                Operation(action=operation, key=key, value=value, uuid=uuid),
+            )
+            response_ready = False
+            response = None
+            print("Esperando respuesta")
+            # acto criminal, bloquear hasta que haya una respuesta
+        response = False
+        with self.condition:
+            self.condition.wait()
+            print("Respuesta recibida")
+            response = self.outbound_message_queue.get(uuid)
+        return response
+
+    def start(self):
+        """Inicia el Hilo"""
+        self.thread.start()
+
+    def join(self):
+        """Espera a que termine el hilo"""
+        self.thread.join()
 
     # server on/off
-    def run(self):
+    def _run(self):
         """Run"""
         try:
             print("Servidor iniciado.")

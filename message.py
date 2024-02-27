@@ -1,6 +1,7 @@
 """La clase para los mensajes del sistema distribuido"""
 
 import json
+from uuid import uuid4
 
 from operation import Operation
 
@@ -11,6 +12,8 @@ class Message:
     def __init__(self, payload: Operation, lt: int):
         self.payload = payload
         self.logic_time = lt
+        self.uuid = uuid4()
+        self._owned = False
 
     def to_dict(self):
         """Transform the operation to a dict"""
@@ -18,6 +21,10 @@ class Message:
             "payload": self.payload.to_dict(),
             "logicTime": self.logic_time,
         }
+
+    def to_owned(self):
+        """Mark the message as owned"""
+        self._owned = True
 
     def __repr__(self):
         x = self.to_dict()
