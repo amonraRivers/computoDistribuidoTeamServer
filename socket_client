@@ -21,4 +21,4 @@ def send(msg):
 
 send("que show")
 send("ponte al tiro")
-#send (DISCONNECT_MESSAGE)
+send(DISCONNECT_MESSAGE)

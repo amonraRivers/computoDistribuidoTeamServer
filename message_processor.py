@@ -7,7 +7,7 @@ from log import Log
 
 
 class MessageProcessor:
-    def __init__(self,buffer,log);
+    def __init__(self,buffer,log):
         self.buffer=buffer
         self.log=log
 

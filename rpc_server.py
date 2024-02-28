@@ -10,7 +10,6 @@ from message import Message
 from operation import Operation
 from response_queue import ResponseQueue
 
-
 class RPCServer:
     """Server"""
 
