@@ -1,0 +1,45 @@
+import socket
+
+HEADER = 64
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "!DISCONNECT"
+
+SERVER = ["192.168.0.11", "192.168.0.11", "192.168.0.11"]
+PORT = [5050, 5050, 5050]
+#ADDR = (SERVER, PORT)
+
+ADDR_list = tuple((server, port) for server, port in zip(SERVER, PORT))
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+for ADDR in ADDR_list:
+    try:
+        client.connect(ADDR)
+    except:
+        print(f"Could not connect to {ADDR}")
+        ADDR_list = ADDR_list[1:]
+        print(f"Trying to connect to {ADDR_list[0]}")
+
+client.connect(ADDR_list[0])
+
+print(client.recv(2048).decode(FORMAT))
+
+
+
+#def try_connect(ADDR_list):
+#    while ADDR_list != []:
+#        i =+ i        
+#        return True
+
+def send(msg):
+    message = msg.encode(FORMAT)
+    msg_lenght = len(message)
+    send_lenght = str(msg_lenght).encode(FORMAT)
+    send_lenght += b' ' * (HEADER - len(send_lenght))
+    client.send(send_lenght)
+    client.send(message)
+    print(client.recv(2048).decode(FORMAT))
+
+#send("que show")
+#send("ponte al tiro")
+#send(DISCONNECT_MESSAGE)
