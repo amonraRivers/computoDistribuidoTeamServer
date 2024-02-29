@@ -4,9 +4,8 @@ HEADER = 64
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
-SERVER = ["192.168.0.11", "192.168.0.11", "192.168.0.11"]
+SERVER = ["192.168.0.11", "192.168.0.12", "192.168.0.13"]
 PORT = [5050, 5050, 5050]
-#ADDR = (SERVER, PORT)
 
 ADDR_list = tuple((server, port) for server, port in zip(SERVER, PORT))
 
@@ -20,16 +19,9 @@ for ADDR in ADDR_list:
         ADDR_list = ADDR_list[1:]
         print(f"Trying to connect to {ADDR_list[0]}")
 
-client.connect(ADDR_list[0])
+# client.connect(ADDR_list[0])
 
 print(client.recv(2048).decode(FORMAT))
-
-
-
-#def try_connect(ADDR_list):
-#    while ADDR_list != []:
-#        i =+ i        
-#        return True
 
 def send(msg):
     message = msg.encode(FORMAT)
