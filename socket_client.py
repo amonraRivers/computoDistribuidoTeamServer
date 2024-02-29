@@ -5,15 +5,18 @@ from time import sleep
 from message import Message
 from message_buffer import MessageBuffer
 from socket_server import SocketConnection
+from utils import Server_Address
 
 HEADER = 1024
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
-SERVER = ["127.0.0.1"]
-PORT = [5050]
+#SERVER = ["127.0.0.1"]
+#PORT = [5050]
+
+SERVER, PORT = Server_Address.get_server_address("ips.txt")
 
 ADDR_LIST = tuple((server, port) for server, port in zip(SERVER, PORT))
-
+print(ADDR_LIST)
 
 class Client_Socket:
     def __init__(self, mb: MessageBuffer):
@@ -42,6 +45,7 @@ class Client_Socket:
 
 
 if __name__ == "__main__":
+    
     mb = MessageBuffer()
     cs = Client_Socket(mb)
     cs.start()
