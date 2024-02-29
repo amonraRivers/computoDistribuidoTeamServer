@@ -19,8 +19,6 @@ for ADDR in ADDR_list:
         ADDR_list = ADDR_list[1:]
         print(f"Trying to connect to {ADDR_list[0]}")
 
-# client.connect(ADDR_list[0])
-
 print(client.recv(2048).decode(FORMAT))
 
 def send(msg):
@@ -31,7 +29,3 @@ def send(msg):
     client.send(send_lenght)
     client.send(message)
     print(client.recv(2048).decode(FORMAT))
-
-#send("que show")
-#send("ponte al tiro")
-#send(DISCONNECT_MESSAGE)
