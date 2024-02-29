@@ -39,3 +39,21 @@ class Message:
         print(js)
         o = Message(lt=1, op=Operation.from_dict(js.get("operation")))
         return o
+
+    def __lt__(self, other):
+        return self.lt < other.lt
+
+    def __eq__(self, other):
+        return self.lt == other.lt
+
+    def __gt__(self, other):
+        return self.lt > other.lt
+
+    def __le__(self, other):
+        return self.lt <= other.lt
+
+    def __ge__(self, other):
+        return self.lt >= other.lt
+
+    def __ne__(self, other):
+        return self.lt != other.lt

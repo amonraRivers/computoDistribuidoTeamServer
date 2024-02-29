@@ -1,5 +1,6 @@
 import socket
 import threading
+from queue import Queue
 from time import sleep
 
 from message import Message
@@ -19,6 +20,7 @@ class Server_Socket:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
         self.mb = mb
+        self.threads = []
         self.thread = threading.Thread(target=self.create_connections)
 
     def start(self):
@@ -33,6 +35,10 @@ class Server_Socket:
             conn, addr = self.server.accept()
             client = SocketConnection(conn, self.mb)
             client.start()
+            self.threads.append(client)
+
+    def get_threads(self):
+        return self.threads
 
 
 class SocketConnection:
@@ -41,6 +47,7 @@ class SocketConnection:
         self.thread_incomming = threading.Thread(target=self.handle_incomming)
         self.thread_outgoing = threading.Thread(target=self.handle_outgoing)
         self.mb = mb
+        self.out_queue = Queue()
 
     def start(self):
         self.thread_incomming.start()
@@ -52,16 +59,17 @@ class SocketConnection:
         while True:
             res = conn.recv(HEADER).decode(FORMAT)
             res = res.strip()
-            res = Message.from_string(res)
-            self.mb.put(res)
+            if res:
+                res = Message.from_string(res)
+                self.mb.put(res)
 
     def handle_outgoing(self):
-        conn = self.conn
 
         while True:
-            sleep(1)
-            m = str(Message(Operation("get", "a", 1), 1))
-            print(m)
+            m = self.out_queue.get()
+            print("sending")
+            m = str(m)
+
             self.send(m)
 
     def send(self, msg):
@@ -75,3 +83,6 @@ class SocketConnection:
     def join(self):
         self.thread_incomming.join()
         self.thread_outgoing.join()
+
+    def get_out_queue(self):
+        return self.out_queue
