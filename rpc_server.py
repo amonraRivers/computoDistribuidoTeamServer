@@ -9,7 +9,6 @@ from message_buffer import MessageBuffer
 from operation import Operation
 from response_buffer import ResponseBuffer
 
-
 class RPCServer:
     """Server"""
 
