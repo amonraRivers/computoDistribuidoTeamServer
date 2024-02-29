@@ -9,14 +9,12 @@ from operation import Operation
 
 HEADER = 1024
 FORMAT = "utf-8"
-PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
-ADDR = (SERVER, PORT)
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
 
 class Server_Socket:
-    def __init__(self, mb: MessageBuffer):
+    def __init__(self, ADDR, mb: MessageBuffer):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind(ADDR)
         self.mb = mb

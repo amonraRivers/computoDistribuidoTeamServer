@@ -14,16 +14,10 @@ from utils import Server_Address
 class RPCServer:
     """Server"""
 
-    def __init__(self, imq: MessageBuffer, omq: ResponseBuffer, ss, sc):
-
-        host, port = Server_Address.get_server_address(
-            "ips.txt"
-        )  # Obtiene la dirección IP y el puerto
+    def __init__(self, ip, imq: MessageBuffer, omq: ResponseBuffer, ss, sc):
 
         self.thread = Thread(target=self._run)
-        self.server = SimpleXMLRPCServer(
-            (host[0], int(port[0]))
-        )  # Usa la IP y el puerto obtenidos
+        self.server = SimpleXMLRPCServer(ip)  # Usa la IP y el puerto obtenidos
         self.server.register_instance(self)
         self.inbound_message_queue = imq
         self.outbound_message_queue = omq
@@ -41,8 +35,12 @@ class RPCServer:
         threads = self.ss.get_threads()
         for thread in threads:
             thread.get_out_queue().put(m)
+        threads = self.sc.get_threads()
+        for thread in threads:
+            thread.get_out_queue().put(m)
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
+        print("Esperando enviar a hilos", response)
         return response.get_payload()
 
     def update(self, key, value, operation):
@@ -59,6 +57,9 @@ class RPCServer:
 
             self.inbound_message_queue.put(m)
             threads = self.ss.get_threads()
+            for thread in threads:
+                thread.get_out_queue().put(m)
+            threads = self.sc.get_threads()
             for thread in threads:
                 thread.get_out_queue().put(m)
         response = False

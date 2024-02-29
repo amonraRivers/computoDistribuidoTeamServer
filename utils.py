@@ -9,8 +9,6 @@ class Server_Address:
             for line in lines:
                 line.strip()
                 host, port = line.split()
-                print(host, port)
                 SERVER.append(host)
                 PORT.append(port)
-                print(SERVER, PORT)
         return (SERVER, PORT)
