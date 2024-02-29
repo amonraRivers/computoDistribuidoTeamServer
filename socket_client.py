@@ -13,7 +13,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 #SERVER = ["127.0.0.1"]
 #PORT = [5050]
 
-SERVER, PORT = Server_Address.get_server_address("serversips.txt")
+SERVER, PORT = Server_Address.get_server_address("serverips.txt")
 
 ADDR_LIST = tuple((server, port) for server, port in zip(SERVER, PORT))
 print(ADDR_LIST)
