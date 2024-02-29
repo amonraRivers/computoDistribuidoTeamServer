@@ -9,12 +9,15 @@ from message_buffer import MessageBuffer
 from operation import Operation
 from response_buffer import ResponseBuffer
 
+from utils import get_server_address
+
 class RPCServer:
     """Server"""
-
     def __init__(self, imq: MessageBuffer, omq: ResponseBuffer):
+
+        host, port = get_server_address("ips.txt")  # Obtiene la dirección IP y el puerto
         self.thread = Thread(target=self._run)
-        self.server = SimpleXMLRPCServer(("0.0.0.0", 8000))
+        self.server = SimpleXMLRPCServer((host, int(port)))  # Usa la IP y el puerto obtenidos
         self.server.register_instance(self)
         self.inbound_message_queue = imq
         self.outbound_message_queue = omq
@@ -58,7 +61,7 @@ class RPCServer:
     def _run(self):
         """Run"""
         try:
-            print("Servidor iniciado.")
+            print(f"Servidor iniciado en {host}:{port}.") 
             self.server.serve_forever()
         except KeyboardInterrupt:
             print("Servidor detenido.")
