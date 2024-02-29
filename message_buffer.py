@@ -5,16 +5,19 @@ from queue import PriorityQueue
 from message import Message
 
 
-class Buffer:
+class MessageBuffer:
     """El Buffer de comunicacion"""
 
     def __init__(self):
         self.pq = PriorityQueue(100)
 
-    def insert(self, ms: Message):
+    def put(self, ms: Message):
         """add an operation to teh queue"""
         self.pq.put(ms)
+        print("Agregando mensaje a buffer de mensajes")
 
-    def extract(self):
+    def get(self):
         """get the first item"""
-        return self.pq.get()
+        payload = self.pq.get()
+        print("Quitando mensaje a buffer de mensajes")
+        return payload

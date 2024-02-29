@@ -3,20 +3,21 @@
 from threading import Condition, Thread
 
 from log import Log
-from response_queue import Response, ResponseQueue
+from operation_buffer import OperationBuffer
+from response_buffer import Response, ResponseBuffer
 from state_machine import StateMachine
 
 
 class OperationExecutor:
     """Operation executor"""
 
-    def __init__(self, log: Log, response_queue: ResponseQueue, codition: Condition):
+    def __init__(self, ob: OperationBuffer, rb: ResponseBuffer):
         """Constructor"""
-        self.log = log
+        self.ob = ob
         self.thread = Thread(target=self.run)
         self.state_machine = StateMachine()
-        self.response_queue = response_queue
-        self.condition = codition
+        self.rb = rb
+        self.log = Log()
 
     def start(self):
         """Start"""
@@ -27,10 +28,11 @@ class OperationExecutor:
         while True:
             # print(self.state_machine.get_operations_count())
             # bloquear hasta que haya una nueva operacion
-            op = self.log.get_index(self.state_machine.get_operations_count())
-            print("Esperando operacion")
+
+            op = self.ob.get()
             if op:
-                print("Executing operation", op.uuid)
+                self.log.append(op)
+                print("Ejecutando operacion", op.uuid)
                 payload = None
                 if op.action == "get":
                     payload = self.state_machine.get(op.key)
@@ -40,11 +42,8 @@ class OperationExecutor:
                     payload = self.state_machine.add(op.key, op.value)
                 elif op.action == "mult":
                     payload = self.state_machine.mult(op.key, op.value)
-                with self.condition:
-                    res = Response(payload, op.uuid)
-                    print("Appending response to queue", payload, op.uuid)
-                    self.response_queue.append(res)
-                    self.condition.notify()
+                res = Response(payload, op.uuid)
+                self.rb.put(res)
             op = None
 
     def join(self):
