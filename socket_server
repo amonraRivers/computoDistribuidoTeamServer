@@ -20,7 +20,6 @@ class Server_Socket:
         print("[STARTING] Server is starting")
         server.listen()
         print(f"[LISTENING] Server is listening on {SERVER}")
-           
         while True:
             conn, addr = server.accept()            
             client = Handle_Client(conn, addr)
@@ -34,13 +33,17 @@ class Handle_Client:
         self.thread = threading.Thread(target=self.handle_client)
         
     def recieve(self):
+        #conn = self.conn
         self.thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+        #conn.send(f"You are connected to {SERVER}".encode(FORMAT))
     
     def handle_client(self):
         conn = self.conn
         addr = self.addr
+        
         print(f"[NEW CONNECTION] {addr} connected.")
+        conn.send(f"You are connected to {SERVER}".encode(FORMAT))
         
         connected = True
         while connected:
