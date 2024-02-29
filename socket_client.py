@@ -1,7 +1,7 @@
 import socket
 
 HEADER = 64
-FORMAT = 'utf-8'
+FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
 SERVER = ["192.168.0.11", "192.168.0.12", "192.168.0.13"]
@@ -21,11 +21,12 @@ for ADDR in ADDR_list:
 
 print(client.recv(2048).decode(FORMAT))
 
+
 def send(msg):
     message = msg.encode(FORMAT)
     msg_lenght = len(message)
     send_lenght = str(msg_lenght).encode(FORMAT)
-    send_lenght += b' ' * (HEADER - len(send_lenght))
+    send_lenght += b" " * (HEADER - len(send_lenght))
     client.send(send_lenght)
     client.send(message)
     print(client.recv(2048).decode(FORMAT))
