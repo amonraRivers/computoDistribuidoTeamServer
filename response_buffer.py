@@ -1,6 +1,6 @@
 """The message queue client"""
 
-from threading import Semaphore
+from queue import Queue
 
 
 class Response:
@@ -23,27 +23,23 @@ class Response:
         self.payload = payload
 
 
-class ResponseQueue:
-    """A class for sending messages to the buffer"""
+class ResponseBuffer:
+    """A class for sending a response to the rpc server"""
 
     def __init__(
         self,
     ):
-        self._semaphore = Semaphore(1)
-        self._queue = {}
+        self._queue = Queue()
 
-    def append(self, r: Response):
+    def put(self, r: Response):
         """send a message to the buffer"""
-        with self._semaphore:
-            print("Appending response to queue", r.payload, r.get_id())
-            self._queue[r.get_id()] = r.get_payload()
+        self._queue.put(r)
+        print("Agregando respuesta a buffer de respuestas")
 
-    def get(self, _id: int):
+    def get(self) -> Response:
         """get a message by id"""
         res = None
-        with self._semaphore:
-            if _id in self._queue:
-                res = self._queue[_id]
-                del self._queue[_id]
+        res = self._queue.get()
+        print("Quitando respuesta a buffer de respuestas")
 
         return res

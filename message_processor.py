@@ -2,25 +2,29 @@
 
 from threading import Thread
 
-from buffer import Buffer
-from log import Log
+from message_buffer import MessageBuffer
+from operation_buffer import OperationBuffer
 
 
 class MessageProcessor:
-    def __init__(self,buffer,log);
-        self.buffer=buffer
-        self.log=log
+    """Procesador de mensajes"""
+
+    def __init__(self, mb: MessageBuffer, ob: OperationBuffer):
+        self.mb = mb
+        self.ob = ob
+        self.thread = Thread(target=self.run)
 
     def start(self):
-        self.thread=Thread(target=self.run)
+        """Start"""
         self.thread.start()
 
     def run(self):
+        """Run"""
         while True:
-            message=self.buffer.get()
-            self.log.append(message)
-            print("Message processed",message)
-            message=None
+            message = self.mb.get()
+            self.ob.put(message.operation)
+            message = None
 
     def join(self):
+        """Join"""
         self.thread.join()

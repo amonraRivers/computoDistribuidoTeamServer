@@ -1,22 +1,26 @@
 """Setup for the package."""
 
-from threading import Condition
-
-from log import Log
+from message_buffer import MessageBuffer
+from message_processor import MessageProcessor
+from operation_buffer import OperationBuffer
 from operation_executor import OperationExecutor
-from response_queue import ResponseQueue
+from response_buffer import ResponseBuffer
 from rpc_server import RPCServer
 
 if __name__ == "__main__":
     print("This is the setup_server.py file")
-    log = Log()
-    r = ResponseQueue()
-    condition = Condition()
-    executor = OperationExecutor(log, r, condition)
-    server = RPCServer(log, r, condition)
+    mb = MessageBuffer()
+    rb = ResponseBuffer()
+    ob = OperationBuffer()
 
-    server.start()
-    executor.start()
+    mp = MessageProcessor(mb, ob)
+    op = OperationExecutor(ob, rb)
+    rpc = RPCServer(mb, rb)
 
-    server.join()
-    executor.join()
+    rpc.start()
+    mp.start()
+    op.start()
+
+    rpc.join()
+    op.join()
+    mp.join()
