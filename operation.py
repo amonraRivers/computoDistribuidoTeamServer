@@ -39,5 +39,5 @@ class Operation:
     @classmethod
     def from_dict(cls, d):
         """parse a json string to the operation"""
-        o = Operation(d.action, d.value, d.key)
+        o = Operation(d.get("action"), d.get("value"), d.get("key"))
         return o

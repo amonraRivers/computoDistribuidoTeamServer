@@ -1,32 +1,48 @@
 import socket
+import threading
+from time import sleep
 
-HEADER = 64
+from message import Message
+from message_buffer import MessageBuffer
+from socket_server import SocketConnection
+
+HEADER = 1024
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
+SERVER = ["127.0.0.1"]
+PORT = [5050]
 
-SERVER = ["192.168.0.11", "192.168.0.12", "192.168.0.13"]
-PORT = [5050, 5050, 5050]
-
-ADDR_list = tuple((server, port) for server, port in zip(SERVER, PORT))
-
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-for ADDR in ADDR_list:
-    try:
-        client.connect(ADDR)
-    except:
-        print(f"Could not connect to {ADDR}")
-        ADDR_list = ADDR_list[1:]
-        print(f"Trying to connect to {ADDR_list[0]}")
-
-print(client.recv(2048).decode(FORMAT))
+ADDR_LIST = tuple((server, port) for server, port in zip(SERVER, PORT))
 
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_lenght = len(message)
-    send_lenght = str(msg_lenght).encode(FORMAT)
-    send_lenght += b" " * (HEADER - len(send_lenght))
-    client.send(send_lenght)
-    client.send(message)
-    print(client.recv(2048).decode(FORMAT))
+class Client_Socket:
+    def __init__(self, mb: MessageBuffer):
+        self.ADDR_LIST = ADDR_LIST
+        self.threads = []
+        self.mb = mb
+
+    def start(self):
+        print("[STARTING] Client is starting")
+
+        for ADDR in ADDR_LIST:
+            try:
+                print(f"Trying to connect to {ADDR}")
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client.connect(ADDR)
+                connection = SocketConnection(client, self.mb)
+                connection.start()
+                self.threads.append(connection)
+                print(f"Connected to {ADDR}")
+            except:
+                print(f"Could not connect to {ADDR}")
+
+    def join(self):
+        for thread in self.threads:
+            thread.join()
+
+
+if __name__ == "__main__":
+    mb = MessageBuffer()
+    cs = Client_Socket(mb)
+    cs.start()
+    cs.join()

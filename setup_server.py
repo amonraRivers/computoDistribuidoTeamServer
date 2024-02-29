@@ -6,6 +6,7 @@ from operation_buffer import OperationBuffer
 from operation_executor import OperationExecutor
 from response_buffer import ResponseBuffer
 from rpc_server import RPCServer
+from socket_client import Client_Socket
 from socket_server import Server_Socket
 
 if __name__ == "__main__":
@@ -20,6 +21,9 @@ if __name__ == "__main__":
     rpc = RPCServer(mb, rb)
     ss = Server_Socket(mb)
 
+    #    sc = Client_Socket()
+    #
+    #    sc.start()
     ss.start()
     rpc.start()
     mp.start()
