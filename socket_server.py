@@ -13,18 +13,23 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 
 
 class Server_Socket:
-    def __init__(self, mb: MessageBuffer, sb):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind(ADDR)
-        self.server = server
+    def __init__(self, mb: MessageBuffer):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind(ADDR)
+        self.mb = mb
+        self.thread = threading.Thread(target=self.create_connections)
 
     def start(self):
+        self.thread.start()
+
+    def create_connections(self):
         print("[STARTING] Server is starting")
-        server.listen()
+        self.server.listen()
         print(f"[LISTENING] Server is listening on {SERVER}")
         while True:
-            conn, addr = server.accept()
-            client = SocketConnection(conn, addr, mb)
+            print("esperando")
+            conn, addr = self.server.accept()
+            client = SocketConnection(conn, addr, self.mb)
             client.start()
 
 
@@ -65,12 +70,8 @@ class SocketConnection:
 
     def handle_outgoing(self):
         conn = self.conn
-        addr = self.addr
 
-        connected = True
-        while connected:
-            msg = self.mb.get_message()
-            if msg:
-                conn.send(msg.encode(FORMAT))
+        msg = "Hello World!"
+        conn.send(msg.encode(FORMAT))
 
         conn.close()
