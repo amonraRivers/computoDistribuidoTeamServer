@@ -65,7 +65,6 @@ class SocketConnection:
 
         while True:
             m = self.out_queue.get()
-            print("sending")
             m = str(m)
 
             self.send(m)
@@ -74,8 +73,7 @@ class SocketConnection:
         conex = self.conn
         message = msg.encode(FORMAT)
         msg_lenght = len(message)
-        send_lenght = str(msg_lenght).encode(FORMAT)
-        send_lenght += b" " * (HEADER - len(send_lenght))
+        message += b" " * (HEADER - len(message))
         conex.send(message)
 
     def join(self):

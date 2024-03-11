@@ -28,6 +28,7 @@ class Message:
 
     def __repr__(self):
         x = self.to_dict()
+        x.pop("lt")
         return json.dumps(x)
 
     @classmethod
