@@ -1,37 +1,50 @@
 import socket
+import threading
 
-HEADER = 64
-FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
+from message_buffer import MessageBuffer
+from socket_server import SocketConnection
 
-SERVER = ["192.168.0.11", "192.168.0.12", "192.168.0.13"]
-PORT = [5050, 5050, 5050]
+HEADER = 1024
+FORMAT = "utf-8"
 
-ADDR_list = tuple((server, port) for server, port in zip(SERVER, PORT))
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class Client_Socket:
+    def __init__(self, ips, mb: MessageBuffer):
+        self.ips = ips
+        self.threads = []
+        self.mb = mb
 
-for ADDR in ADDR_list:
-    try:
-        client.connect(ADDR)
-    except:
-        print(f"Could not connect to {ADDR}")
-        ADDR_list = ADDR_list[1:]
-        print(f"Trying to connect to {ADDR_list[0]}")
+    def start(self):
+        print("[STARTING] Client is starting")
 
-# client.connect(ADDR_list[0])
+        for addr in self.ips:
+            try:
+                print(f"Trying to connect to {addr}")
+                client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client.connect(addr)
+                connection = SocketConnection(
+                    client,
+                    self.mb,
+                )
+                connection.start()
+                self.threads.append(connection)
+                print(f"Connected to {addr}")
+            except:
+                print(f"Could not connect to {addr}")
 
-print(client.recv(2048).decode(FORMAT))
+    def join(self):
+        for thread in self.threads:
+            thread.join()
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_lenght = len(message)
-    send_lenght = str(msg_lenght).encode(FORMAT)
-    send_lenght += b' ' * (HEADER - len(send_lenght))
-    client.send(send_lenght)
-    client.send(message)
-    print(client.recv(2048).decode(FORMAT))
+    def get_threads(self):
+        return self.threads
 
-#send("que show")
-#send("ponte al tiro")
-#send(DISCONNECT_MESSAGE)
+
+if __name__ == "__main__":
+
+    ips = [("127.0.0.1", 5050)]
+
+    mb = MessageBuffer()
+    cs = Client_Socket(ips, mb)
+    cs.start()
+    cs.join()

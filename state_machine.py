@@ -15,7 +15,7 @@ class StateMachine:
     def get(self, key):
         """Get"""
         self._add_operation_count()
-        return self._data.get(key, None)
+        return self._data.get(key, 0)
 
     def set(self, key, value):
         """Set"""

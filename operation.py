@@ -7,7 +7,7 @@ from uuid import uuid4
 class Operation:
     """State Machine Operation"""
 
-    def __init__(self, action, key, value, uuid=None):
+    def __init__(self, action, key, value, uuid=None, owned=False):
         """Constructor"""
         if uuid:
             self.uuid = uuid
@@ -16,6 +16,7 @@ class Operation:
         self.action = action
         self.value = value
         self.key = key
+        self.owned = owned
 
     def to_dict(self):
         """Transform the operation to a dict"""
@@ -39,5 +40,5 @@ class Operation:
     @classmethod
     def from_dict(cls, d):
         """parse a json string to the operation"""
-        o = Operation(d.action, d.value, d.key)
+        o = Operation(d.get("action"), d.get("value"), d.get("key"))
         return o

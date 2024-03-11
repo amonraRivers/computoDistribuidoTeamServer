@@ -42,8 +42,9 @@ class OperationExecutor:
                     payload = self.state_machine.add(op.key, op.value)
                 elif op.action == "mult":
                     payload = self.state_machine.mult(op.key, op.value)
-                res = Response(payload, op.uuid)
-                self.rb.put(res)
+                if op.owned:
+                    res = Response(payload, op.uuid)
+                    self.rb.put(res)
             op = None
 
     def join(self):

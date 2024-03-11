@@ -11,15 +11,15 @@ class Message:
 
     def __init__(self, op: Operation, lt: int):
         self.operation = op
-        self.logic_time = lt
+        self.lt = lt
         self.uuid = uuid4()
         self._owned = False
 
     def to_dict(self):
         """Transform the operation to a dict"""
         return {
-            "payload": self.operation.to_dict(),
-            "logicTime": self.logic_time,
+            "operation": self.operation.to_dict(),
+            "lt": self.lt,
         }
 
     def to_owned(self):
@@ -33,6 +33,27 @@ class Message:
     @classmethod
     def from_string(cls, s):
         """parse a json string to the operation"""
+        print(s)
+        print(len(s))
         js = json.loads(s)
-        o = Message(lt=1, op=Operation.from_dict(js.operation))
+        print(js)
+        o = Message(lt=1, op=Operation.from_dict(js.get("operation")))
         return o
+
+    def __lt__(self, other):
+        return self.lt < other.lt
+
+    def __eq__(self, other):
+        return self.lt == other.lt
+
+    def __gt__(self, other):
+        return self.lt > other.lt
+
+    def __le__(self, other):
+        return self.lt <= other.lt
+
+    def __ge__(self, other):
+        return self.lt >= other.lt
+
+    def __ne__(self, other):
+        return self.lt != other.lt

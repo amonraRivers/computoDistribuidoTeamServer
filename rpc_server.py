@@ -8,32 +8,39 @@ from message import Message
 from message_buffer import MessageBuffer
 from operation import Operation
 from response_buffer import ResponseBuffer
+from utils import Server_Address
 
-from utils import get_server_address
 
 class RPCServer:
     """Server"""
-    def __init__(self, imq: MessageBuffer, omq: ResponseBuffer):
 
-        host, port = get_server_address("ips.txt")  # Obtiene la dirección IP y el puerto
+    def __init__(self, ip, imq: MessageBuffer, omq: ResponseBuffer, ss, sc):
+
         self.thread = Thread(target=self._run)
-        self.server = SimpleXMLRPCServer((host, int(port)))  # Usa la IP y el puerto obtenidos
+        self.server = SimpleXMLRPCServer(ip)  # Usa la IP y el puerto obtenidos
         self.server.register_instance(self)
         self.inbound_message_queue = imq
         self.outbound_message_queue = omq
+        self.ss = ss
+        self.sc = sc
 
     # read y update
     def read(self, key):
         """Read"""
         uuid = uuid4()
-        self.inbound_message_queue.put(
-            Message(
-                Operation(action="get", key=key, value=None, uuid=uuid),
-                1,
-            )
+        m = Message(
+            Operation(action="get", key=key, value=None, uuid=uuid, owned=True), 1
         )
+        self.inbound_message_queue.put(m)
+        threads = self.ss.get_threads()
+        for thread in threads:
+            thread.get_out_queue().put(m)
+        threads = self.sc.get_threads()
+        for thread in threads:
+            thread.get_out_queue().put(m)
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
+        print("Esperando enviar a hilos", response)
         return response.get_payload()
 
     def update(self, key, value, operation):
@@ -41,9 +48,20 @@ class RPCServer:
         valid_operations = ["set", "add", "mult"]
         if operation in valid_operations:
             uuid = uuid4()
-            self.inbound_message_queue.put(
-                Message(Operation(action=operation, key=key, value=value, uuid=uuid), 1)
+            m = Message(
+                Operation(
+                    action=operation, key=key, value=value, uuid=uuid, owned=True
+                ),
+                1,
             )
+
+            self.inbound_message_queue.put(m)
+            threads = self.ss.get_threads()
+            for thread in threads:
+                thread.get_out_queue().put(m)
+            threads = self.sc.get_threads()
+            for thread in threads:
+                thread.get_out_queue().put(m)
         response = False
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
@@ -61,7 +79,7 @@ class RPCServer:
     def _run(self):
         """Run"""
         try:
-            print(f"Servidor iniciado en {host}:{port}.") 
+            print("Servidor iniciado")
             self.server.serve_forever()
         except KeyboardInterrupt:
             print("Servidor detenido.")
