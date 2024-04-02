@@ -8,7 +8,6 @@ from message import Message
 from message_buffer import MessageBuffer
 from operation import Operation
 from response_buffer import ResponseBuffer
-from utils import ServerAddress
 
 
 class RPCServer:

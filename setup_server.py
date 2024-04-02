@@ -8,13 +8,18 @@ from response_buffer import ResponseBuffer
 from rpc_server import RPCServer
 from socket_client import ClientSocket
 from socket_server import ServerSocket
-from utils import ServerAddress
+from utils import get_constants
 
 
 def create_server(file_name):
     """Create the server."""
-    s, p = ServerAddress.get_server_address(file_name)
-    ips = tuple((server, int(port)) for server, port in zip(s, p))
+
+
+    cs = get_constants(file_name)
+    ips = cs.get_nodes()
+    rpc_server = cs.get_server_address()
+    server_socket = cs.get_server_socket()
+
 
     print("This is the setup_server.py file")
     mb = MessageBuffer()
@@ -25,9 +30,9 @@ def create_server(file_name):
     op = OperationExecutor(ob, rb)
 
     print(ips)
-    ss = ServerSocket(ips[1], mb)
-    sc = ClientSocket(ips[2:], mb)
-    rpc = RPCServer(ips[0], mb, rb, ss, sc)
+    ss = ServerSocket(server_socket, mb)
+    sc = ClientSocket(ips, mb)
+    rpc = RPCServer(rpc_server, mb, rb, ss, sc)
 
     sc.start()
     ss.start()

@@ -4,6 +4,7 @@ import json
 from uuid import uuid4
 
 from operation import Operation
+from utils import get_constants
 
 
 class Message:
@@ -17,9 +18,12 @@ class Message:
 
     def to_dict(self):
         """Transform the operation to a dict"""
+        cs=get_constants()
+
         return {
             "operation": self.operation.to_dict(),
             "lt": self.lt,
+            "uuid": cs.get_server_id(), 
         }
 
     def to_owned(self):
