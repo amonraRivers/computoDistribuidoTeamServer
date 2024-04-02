@@ -6,13 +6,14 @@ from operation_buffer import OperationBuffer
 from operation_executor import OperationExecutor
 from response_buffer import ResponseBuffer
 from rpc_server import RPCServer
-from socket_client import Client_Socket
-from socket_server import Server_Socket
-from utils import Server_Address
+from socket_client import ClientSocket
+from socket_server import ServerSocket
+from utils import ServerAddress
 
 
 def create_server(file_name):
-    s, p = Server_Address.get_server_address(file_name)
+    """Create the server."""
+    s, p = ServerAddress.get_server_address(file_name)
     ips = tuple((server, int(port)) for server, port in zip(s, p))
 
     print("This is the setup_server.py file")
@@ -24,8 +25,8 @@ def create_server(file_name):
     op = OperationExecutor(ob, rb)
 
     print(ips)
-    ss = Server_Socket(ips[1], mb)
-    sc = Client_Socket(ips[2:], mb)
+    ss = ServerSocket(ips[1], mb)
+    sc = ClientSocket(ips[2:], mb)
     rpc = RPCServer(ips[0], mb, rb, ss, sc)
 
     sc.start()

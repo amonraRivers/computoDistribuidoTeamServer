@@ -1,4 +1,4 @@
-class Server_Address:
+class ServerAddress:
     @staticmethod
     def get_server_address(filename):
         """Lee la dirección IP y el puerto del archivo especificado."""
