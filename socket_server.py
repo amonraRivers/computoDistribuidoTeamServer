@@ -1,8 +1,8 @@
 """ This module is responsible for creating the server socket and the connection socket."""
+
 import socket
 import threading
 from queue import Queue
-from time import sleep
 
 from message import Message
 from message_buffer import MessageBuffer
@@ -16,6 +16,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 
 class ServerSocket:
     """Server socket class."""
+
     def __init__(self, addr, mb: MessageBuffer):
         """Initialize the server socket."""
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,6 +48,7 @@ class ServerSocket:
 
 class SocketConnection:
     """Socket connection class."""
+
     def __init__(self, conn, mb: MessageBuffer):
         """Initialize the socket connection."""
         self.conn = conn
