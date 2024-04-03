@@ -14,12 +14,12 @@ from utils import get_constants
 def create_server(file_name):
     """Create the server."""
 
-
     cs = get_constants(file_name)
-    ips = cs.get_nodes()
-    rpc_server = cs.get_server_address()
-    server_socket = cs.get_server_socket()
+    ips_addresses = cs.get_nodes()
+    rpc_server_address = cs.get_server_address()
+    server_socket_address = cs.get_server_socket()
 
+    socketConnectionPool = []
 
     print("This is the setup_server.py file")
     mb = MessageBuffer()
@@ -29,13 +29,13 @@ def create_server(file_name):
     mp = MessageProcessor(mb, ob)
     op = OperationExecutor(ob, rb)
 
-    print(ips)
-    ss = ServerSocket(server_socket, mb)
-    sc = ClientSocket(ips, mb)
-    rpc = RPCServer(rpc_server, mb, rb, ss, sc)
+    print(ips_addresses)
+    ss = ServerSocket(server_socket_address, mb)
+    sc = ClientSocket(ips_addresses, mb)
+    rpc = RPCServer(rpc_server_address, mb, rb, socketConnectionPool)
 
-    sc.start()
-    ss.start()
+    sc.start(socketConnectionPool)
+    ss.start(socketConnectionPool)
 
     rpc.start()
     mp.start()

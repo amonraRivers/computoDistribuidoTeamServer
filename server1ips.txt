@@ -1,4 +1,4 @@
 server 0.0.0.0 8001
-serverSocket 127.0.0.1 5051
-node 127.0.0.1 5050
-id 0
+serverSocket 192.168.2.171 21003
+node 192.168.2.171 21002
+id 1

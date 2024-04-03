@@ -16,23 +16,23 @@ class ClientSocket:
     def __init__(self, ips, mb: MessageBuffer):
         """Initialize the client socket."""
         self.ips = ips
-        self.threads = []
         self.mb = mb
 
-    def start(self):
+    def start(self, thread_pool):
         """Start the client."""
         print("[STARTING] Client is starting")
         starting_threads = []
-        for addr in self.ips:
-            starting_threads.append(
-                Thread(target=self.start_thread, args=(addr,)).start()
-            )
 
-        for thread in self.threads:
+        for addr in self.ips:
+            th = Thread(target=self.start_thread, args=(addr, thread_pool))
+            th.start()
+            starting_threads.append(th)
+
+        for thread in starting_threads:
             thread.join()
         print("[FINISHED] Client has finished")
 
-    def start_thread(self, addr):
+    def start_thread(self, addr, thread_pool):
         """Start the client thread."""
         try:
             print(f"Trying to connect to {addr}")
@@ -43,19 +43,10 @@ class ClientSocket:
                 self.mb,
             )
             connection.start()
-            self.threads.append(connection)
+            thread_pool.append(connection)
             print(f"Connected to {addr}")
         except Exception as e:
             print(f"Could not connect to {addr} {e}")
-
-    def join(self):
-        """Join the client."""
-        for thread in self.threads:
-            thread.join()
-
-    def get_threads(self):
-        """Get the threads."""
-        return self.threads
 
 
 if __name__ == "__main__":
@@ -64,5 +55,4 @@ if __name__ == "__main__":
 
     mx = MessageBuffer()
     cs = ClientSocket(ips=ix, mb=mx)
-    cs.start()
-    cs.join()
+    cs.start([])

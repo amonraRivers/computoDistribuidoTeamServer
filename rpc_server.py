@@ -13,15 +13,14 @@ from response_buffer import ResponseBuffer
 class RPCServer:
     """Server"""
 
-    def __init__(self, ip, imq: MessageBuffer, omq: ResponseBuffer, ss, sc):
+    def __init__(self, ip, imq: MessageBuffer, omq: ResponseBuffer, thread_pool):
 
         self.thread = Thread(target=self._run)
         self.server = SimpleXMLRPCServer(ip)  # Usa la IP y el puerto obtenidos
         self.server.register_instance(self)
         self.inbound_message_queue = imq
         self.outbound_message_queue = omq
-        self.ss = ss
-        self.sc = sc
+        self.thread_pool = thread_pool
 
     # read y update
     def read(self, key):
@@ -31,11 +30,7 @@ class RPCServer:
             Operation(action="get", key=key, value=None, uuid=uuid, owned=True), 1
         )
         self.inbound_message_queue.put(m)
-        threads = self.ss.get_threads()
-        for thread in threads:
-            thread.get_out_queue().put(m)
-        threads = self.sc.get_threads()
-        for thread in threads:
+        for thread in self.thread_pool:
             thread.get_out_queue().put(m)
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
@@ -55,10 +50,7 @@ class RPCServer:
             )
 
             self.inbound_message_queue.put(m)
-            threads = self.ss.get_threads()
-            for thread in threads:
-                thread.get_out_queue().put(m)
-            threads = self.sc.get_threads()
+            threads = self.thread_pool
             for thread in threads:
                 thread.get_out_queue().put(m)
         response = False
