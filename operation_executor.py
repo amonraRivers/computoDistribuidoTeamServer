@@ -3,7 +3,7 @@
 from threading import Condition, Thread
 
 from log import Log
-from operation_buffer import OperationBuffer
+from message_buffer import MessageBuffer
 from response_buffer import Response, ResponseBuffer
 from state_machine import StateMachine
 
@@ -11,7 +11,7 @@ from state_machine import StateMachine
 class OperationExecutor:
     """Operation executor"""
 
-    def __init__(self, ob: OperationBuffer, rb: ResponseBuffer):
+    def __init__(self, ob: MessageBuffer, rb: ResponseBuffer):
         """Constructor"""
         self.ob = ob
         self.thread = Thread(target=self.run)
@@ -29,7 +29,8 @@ class OperationExecutor:
             # print(self.state_machine.get_operations_count())
             # bloquear hasta que haya una nueva operacion
 
-            op = self.ob.get()
+            msg = self.ob.get()
+            op = msg.operation
             if op:
                 self.log.append(op)
                 print("Ejecutando operacion", op.uuid)

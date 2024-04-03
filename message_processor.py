@@ -11,12 +11,12 @@ from utils import get_constants
 class MessageProcessor:
     """Procesador de mensajes"""
 
-    def __init__(self, mb: MessageBuffer, ob: OperationBuffer):
+    def __init__(self, mb: MessageBuffer, ob: MessageBuffer):
         self.mb = mb
         self.ob = ob
         self.thread = Thread(target=self.run)
         self.condition = Condition()
-        self.connPool = None
+        self.conn_pool = None
 
     def start(self):
         """Start"""
@@ -29,12 +29,12 @@ class MessageProcessor:
             message = self.mb.get()
             # if message.get_node_id() == constants.get_server_id():
 
-            self.ob.put(message.operation)
+            self.ob.put(message)
             message = None
 
     def attach_connection_pool(self, conn_pool: ConnectionPool):
         """Attach connection pool"""
-        self.connPool = conn_pool
+        self.conn_pool = conn_pool
 
     def join(self):
         """Join"""

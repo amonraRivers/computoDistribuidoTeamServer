@@ -25,7 +25,7 @@ def create_server(file_name):
     print("This is the setup_server.py file")
     mb = MessageBuffer()
     rb = ResponseBuffer()
-    ob = OperationBuffer()
+    ob = MessageBuffer()
 
     mp = MessageProcessor(mb, ob)
     mp.attach_connection_pool(socket_connection_pool)
