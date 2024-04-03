@@ -4,6 +4,7 @@ from threading import Condition, Thread
 from uuid import uuid4
 from xmlrpc.server import SimpleXMLRPCServer
 
+from connection_pool import ConnectionPool
 from message import Message
 from message_buffer import MessageBuffer
 from operation import Operation
@@ -13,7 +14,9 @@ from response_buffer import ResponseBuffer
 class RPCServer:
     """Server"""
 
-    def __init__(self, ip, imq: MessageBuffer, omq: ResponseBuffer, thread_pool):
+    def __init__(
+        self, ip, imq: MessageBuffer, omq: ResponseBuffer, thread_pool: ConnectionPool
+    ):
 
         self.thread = Thread(target=self._run)
         self.server = SimpleXMLRPCServer(ip)  # Usa la IP y el puerto obtenidos
@@ -30,8 +33,8 @@ class RPCServer:
             Operation(action="get", key=key, value=None, uuid=uuid, owned=True), 1
         )
         self.inbound_message_queue.put(m)
-        for thread in self.thread_pool:
-            thread.get_out_queue().put(m)
+        threads = self.thread_pool
+        threads.send_to_all(m)
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
         print("Esperando enviar a hilos", response)
@@ -51,8 +54,7 @@ class RPCServer:
 
             self.inbound_message_queue.put(m)
             threads = self.thread_pool
-            for thread in threads:
-                thread.get_out_queue().put(m)
+            threads.send_to_all(m)
         response = False
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()

@@ -1,9 +1,11 @@
 """ Procesadodr de mensajes """
 
-from threading import Thread
+from threading import Condition, Thread
 
+from connection_pool import ConnectionPool
 from message_buffer import MessageBuffer
 from operation_buffer import OperationBuffer
+from utils import get_constants
 
 
 class MessageProcessor:
@@ -13,6 +15,8 @@ class MessageProcessor:
         self.mb = mb
         self.ob = ob
         self.thread = Thread(target=self.run)
+        self.condition = Condition()
+        self.connPool = None
 
     def start(self):
         """Start"""
@@ -20,11 +24,22 @@ class MessageProcessor:
 
     def run(self):
         """Run"""
+        constants = get_constants("serverips.txt")
         while True:
             message = self.mb.get()
+            # if message.get_node_id() == constants.get_server_id():
+
             self.ob.put(message.operation)
             message = None
+
+    def attach_connection_pool(self, conn_pool: ConnectionPool):
+        """Attach connection pool"""
+        self.connPool = conn_pool
 
     def join(self):
         """Join"""
         self.thread.join()
+
+    def get_condition(self):
+        """Get the condition"""
+        return self.condition

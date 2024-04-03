@@ -1,5 +1,6 @@
 """Setup for the package."""
 
+from connection_pool import ConnectionPool
 from message_buffer import MessageBuffer
 from message_processor import MessageProcessor
 from operation_buffer import OperationBuffer
@@ -19,7 +20,7 @@ def create_server(file_name):
     rpc_server_address = cs.get_server_address()
     server_socket_address = cs.get_server_socket()
 
-    socketConnectionPool = []
+    socket_connection_pool = ConnectionPool([])
 
     print("This is the setup_server.py file")
     mb = MessageBuffer()
@@ -27,15 +28,17 @@ def create_server(file_name):
     ob = OperationBuffer()
 
     mp = MessageProcessor(mb, ob)
+    mp.attach_connection_pool(socket_connection_pool)
+
     op = OperationExecutor(ob, rb)
 
     print(ips_addresses)
     ss = ServerSocket(server_socket_address, mb)
     sc = ClientSocket(ips_addresses, mb)
-    rpc = RPCServer(rpc_server_address, mb, rb, socketConnectionPool)
+    rpc = RPCServer(rpc_server_address, mb, rb, socket_connection_pool)
 
-    sc.start(socketConnectionPool)
-    ss.start(socketConnectionPool)
+    sc.start(socket_connection_pool)
+    ss.start(socket_connection_pool)
 
     rpc.start()
     mp.start()

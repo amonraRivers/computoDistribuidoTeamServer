@@ -1,8 +1,10 @@
 """Módulo con funciones útiles para el proyecto."""
 
+
 class ServerConstants:
     """Clase para leer la dirección IP y el puerto del archivo especificado."""
-    def __init__(self,filename):
+
+    def __init__(self, filename):
         self._filename = filename
         self._server = None
         self._server_socket = None
@@ -15,20 +17,19 @@ class ServerConstants:
                 elements = line.split()
                 print(elements)
                 if elements[0] == "server":
-                    self._server=(elements[1], int(elements[2]))
+                    self._server = (elements[1], int(elements[2]))
                 elif elements[0] == "serverSocket":
                     print("serverSocket")
-                    self._server_socket=(elements[1], int(elements[2]))
+                    self._server_socket = (elements[1], int(elements[2]))
                 elif elements[0] == "node":
                     self._nodes.append((elements[1], int(elements[2])))
                 elif elements[0] == "id":
                     self._id = elements[1]
 
-
     def get_server_address(self):
         """Lee la dirección IP y el puerto del archivo especificado."""
         return self._server
-    
+
     def get_server_id(self):
         """Lee el id del servidor del archivo especificado."""
         return self._id
@@ -41,7 +42,9 @@ class ServerConstants:
         """Lee la dirección IP y el puerto del archivo especificado."""
         return self._nodes
 
-SERVER_CONSTANTS=None
+
+SERVER_CONSTANTS = None
+
 
 def get_constants(filename=""):
     """Obtiene las constantes del servidor."""

@@ -34,11 +34,15 @@ class Operation:
     def from_string(cls, s):
         """parse a json string to the operation"""
         js = json.loads(s)
+        if not js:
+            return None
         o = Operation(js.action, js.value, js.key)
         return o
 
     @classmethod
     def from_dict(cls, d):
         """parse a json string to the operation"""
+        if not d:
+            return None
         o = Operation(d.get("action"), d.get("value"), d.get("key"))
         return o

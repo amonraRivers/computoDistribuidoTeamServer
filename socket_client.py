@@ -3,6 +3,7 @@
 import socket
 from threading import Thread
 
+from connection_pool import ConnectionPool
 from message_buffer import MessageBuffer
 from socket_server import SocketConnection
 
@@ -18,7 +19,7 @@ class ClientSocket:
         self.ips = ips
         self.mb = mb
 
-    def start(self, thread_pool):
+    def start(self, thread_pool: ConnectionPool):
         """Start the client."""
         print("[STARTING] Client is starting")
         starting_threads = []
@@ -32,7 +33,7 @@ class ClientSocket:
             thread.join()
         print("[FINISHED] Client has finished")
 
-    def start_thread(self, addr, thread_pool):
+    def start_thread(self, addr, thread_pool: ConnectionPool):
         """Start the client thread."""
         try:
             print(f"Trying to connect to {addr}")
@@ -43,7 +44,7 @@ class ClientSocket:
                 self.mb,
             )
             connection.start()
-            thread_pool.append(connection)
+            thread_pool.add_connection(connection)
             print(f"Connected to {addr}")
         except Exception as e:
             print(f"Could not connect to {addr} {e}")
@@ -55,4 +56,4 @@ if __name__ == "__main__":
 
     mx = MessageBuffer()
     cs = ClientSocket(ips=ix, mb=mx)
-    cs.start([])
+    cs.start(ConnectionPool([]))
