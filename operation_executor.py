@@ -68,6 +68,8 @@ class OperationExecutor:
                     self.conn_pool.send_to_all(Message.create_release(0))
                     csg.reset()
 
+            print("[OperationExecutor] msg timestamp", msg.lt)
+
             op = None
 
     def join(self):

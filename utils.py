@@ -10,6 +10,7 @@ class ServerConstants:
         self._server_socket = None
         self._nodes = []
         self._id = None
+        self._clock = 0
         with open(filename, "r") as file:
             lines = file.readlines()
             for line in lines:
@@ -24,6 +25,12 @@ class ServerConstants:
                     self._nodes.append((elements[1], int(elements[2])))
                 elif elements[0] == "id":
                     self._id = elements[1]
+                elif elements[0] == "clock":
+                    self._clock = int(elements[1])
+
+    def get_server_clock(self):
+        """Lee el reloj del servidor del archivo especificado."""
+        return self._clock
 
     def get_server_address(self):
         """Lee la dirección IP y el puerto del archivo especificado."""

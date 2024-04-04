@@ -2,6 +2,7 @@
 
 from threading import Condition
 
+from clock import get_clock
 from connection_pool import ConnectionPool
 from message_buffer import MessageBuffer
 from message_processor import MessageProcessor
@@ -18,6 +19,7 @@ def create_server(file_name):
     """Create the server."""
 
     cs = get_constants(file_name)
+    get_clock()
     ips_addresses = cs.get_nodes()
     rpc_server_address = cs.get_server_address()
     server_socket_address = cs.get_server_socket()

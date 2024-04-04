@@ -2,12 +2,13 @@
 
 from threading import Condition, Thread
 
+from clock import get_clock
 from connection_pool import ConnectionPool
 from critical_section_guard import get_csg
 from message_buffer import MessageBuffer
 from operation_buffer import OperationBuffer
 from utils import get_constants
-from clock import get_clock
+
 
 class MessageProcessor:
     """Procesador de mensajes"""
@@ -31,9 +32,9 @@ class MessageProcessor:
         csg = get_csg()
         while True:
             message = self.mb.get()
-            
+
             get_clock().sync(message)
-            
+
             print("Message received")
             print(message.get_type(), "request")
             if message.get_type() == "request":
