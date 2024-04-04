@@ -12,6 +12,9 @@ class RPCClient:
     def update(self, key, value, operation):
         return self.client.update(key, value, operation)
 
+    def print_log(self):
+        return self.client.print_logs("a")
+
 
 def get_server_url(filename):
     with open(filename, "r") as file:
@@ -39,4 +42,4 @@ if __name__ == "__main__":
         a = client.read("a")
         if a > 200000000000:
             print(client.update("a", 1, "set"))
-    # client.print_log()
+    client.print_log()

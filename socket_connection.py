@@ -37,8 +37,7 @@ class SocketConnection:
         conn = self.conn
         while True:
             try:
-                res = conn.recv(HEADER).decode(FORMAT)
-                print("Received", res)
+                res = self.myreceive().decode(FORMAT)
                 res = res.strip()
                 if res:
                     print("[received]", res)
@@ -71,6 +70,18 @@ class SocketConnection:
         message = msg.encode(FORMAT)
         message += b" " * (HEADER - len(message))
         conex.send(message)
+
+    def myreceive(self):
+        """Receive the message."""
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < HEADER:
+            chunk = self.conn.recv(min(HEADER - bytes_recd, HEADER))
+            if chunk == b"":
+                raise RuntimeError("socket connection broken")
+            chunks.append(chunk)
+            bytes_recd = bytes_recd + len(chunk)
+        return b"".join(chunks)
 
     def join(self):
         """Join the connection."""

@@ -90,6 +90,9 @@ class OperationExecutor:
                 payload = self.state_machine.add(op.key, op.value)
             elif op.action == "mult":
                 payload = self.state_machine.mult(op.key, op.value)
+            elif op.action == "print":
+                print("[LOG]", self.log)
+                payload = str(self.log)
             if op.owned:
                 res = Response(payload, op.uuid)
                 self.rb.put(res)
