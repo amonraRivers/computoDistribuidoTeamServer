@@ -22,3 +22,9 @@ class MessageBuffer:
         payload = self.pq.get()
         print("Quitando mensaje a buffer de mensajes")
         return payload
+
+    def peek(self):
+        """peek the first item"""
+        temp = self.pq.get()
+        self.pq.put(temp)
+        return temp

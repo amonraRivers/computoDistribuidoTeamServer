@@ -43,14 +43,12 @@ class MessageProcessor:
             elif message.get_type() == "reply":
                 print("Reply received")
                 csg.add_reply()
-                with self.enter_condition:
-                    self.enter_condition.notify()
             elif message.get_type() == "release":
                 print("Release received")
                 csg.set_should_release()
-                with self.release_condition:
-                    self.release_condition.notify()
 
+            with self.enter_condition:
+                self.enter_condition.notify()
             message = None
 
     def attach_connection_pool(self, conn_pool: ConnectionPool):

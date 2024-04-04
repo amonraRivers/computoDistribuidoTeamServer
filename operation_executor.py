@@ -36,8 +36,9 @@ class OperationExecutor:
         """Should enter critical section"""
         csg = get_csg()
         replies = csg.get_replies()
+        constants = get_constants()
         print("Replies", replies)
-        return replies >= self.conn_pool.size()
+        return replies >= len(constants.get_nodes())
 
     def run(self):
         """Run"""
@@ -48,28 +49,31 @@ class OperationExecutor:
             csg = get_csg()
 
             constants = get_constants()
-            msg = self.ob.get()
-            op = msg.operation
-            print(msg.get_node_id(), constants.get_server_id())
-            if msg.get_node_id() != constants.get_server_id():
-                print("sending to", msg.get_node_id())
-                csg.set_given_to(msg.get_node_id())
-                self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
-                with self.release_condition:
-                    self.release_condition.wait_for(csg.should_release)
-                    self.do_operation(op)
-                    csg.reset()
+            msg = self.ob.peek()
+            while True:
+                msg = self.ob.peek()
+                op = msg.operation
+                if msg.get_node_id() != constants.get_server_id():
+                    self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
+                    with self.enter_condition:
+                        self.enter_condition.wait()
 
-            else:
-                print("sending to myself")
-                with self.enter_condition:
-                    self.enter_condition.wait_for(self.should_enter_cs)
-                    self.do_operation(op)
-                    self.conn_pool.send_to_all(Message.create_release(0))
-                    csg.reset()
+                        if csg.should_release() and msg == self.ob.peek():
+                            msg = self.ob.get()
+                            csg.reset()
+                            break
+
+                else:
+                    with self.enter_condition:
+                        self.enter_condition.wait()
+                        if self.should_enter_cs():
+                            msg = self.ob.get()
+                            csg.reset()
+                            self.conn_pool.send_to_all(Message.create_release(0))
+                            break
 
             print("[OperationExecutor] msg timestamp", msg.lt)
-
+            self.do_operation(op)
             op = None
 
     def join(self):
