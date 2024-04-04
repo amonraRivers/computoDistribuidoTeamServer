@@ -9,6 +9,7 @@ from message import Message
 from message_buffer import MessageBuffer
 from operation import Operation
 from response_buffer import ResponseBuffer
+from clock import get_clock
 
 
 class RPCServer:
@@ -30,7 +31,7 @@ class RPCServer:
         """Read"""
         uuid = uuid4()
         m = Message(
-            Operation(action="get", key=key, value=None, uuid=uuid, owned=True), 1
+            Operation(action="get", key=key, value=None, uuid=uuid, owned=True), lt=get_clock().stamper()
         )
         self.inbound_message_queue.put(m)
         threads = self.thread_pool
@@ -49,7 +50,7 @@ class RPCServer:
                 Operation(
                     action=operation, key=key, value=value, uuid=uuid, owned=True
                 ),
-                1,
+                lt=get_clock().stamper(),
             )
 
             self.inbound_message_queue.put(m)

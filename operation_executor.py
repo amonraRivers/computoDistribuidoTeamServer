@@ -2,6 +2,7 @@
 
 from threading import Condition, Thread
 
+from clock import get_clock
 from connection_pool import ConnectionPool
 from critical_section_guard import get_csg
 from log import Log
@@ -90,6 +91,7 @@ class OperationExecutor:
             if op.owned:
                 res = Response(payload, op.uuid)
                 self.rb.put(res)
+            get_clock().stamper()
 
     def attach_connection_pool(self, conn_pool: ConnectionPool):
         """Attach connection pool"""
