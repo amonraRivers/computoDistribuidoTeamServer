@@ -25,10 +25,18 @@ if __name__ == "__main__":
     url = get_server_url("ips.txt")
     client = RPCClient(url)
     ####purebas
-    print(client.read("a"))  # 10
-    print(client.update("a", 10, "set"))  # True
-    print(client.read("a"))  # 10
-    print(client.update("a", 5, "add"))  # True
-    print(client.read("a"))  # 15
-    print(client.update("a", 2, "mult"))  # True
-    print(client.read("a"))  # 30
+    a = client.read("a")
+    if a == 0:
+        print(client.read("a"))
+        print(client.update("a", 10, "set"))
+
+    for i in range(10):
+        print(client.read("a"))  # 10
+        print(client.update("a", 1, "add"))  # True
+        print(client.read("a"))  # 15
+        print(client.update("a", 3, "add"))  # True
+        print(client.read("a"))  # 30
+        a = client.read("a")
+        if a > 200000000000:
+            print(client.update("a", 1, "set"))
+    # client.print_log()

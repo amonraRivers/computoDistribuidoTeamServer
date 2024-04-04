@@ -48,6 +48,14 @@ class ConnectionPool:
         for conn in conns:
             conn.send_to_out_queue(message)
 
+    def remove_duplicate_connections(self):
+        """Remove duplicate connections"""
+        dict_conn = {}
+        for conn in self.connections:
+            dict_conn[conn.node_id] = conn
+        self.connections = list(dict_conn.values())
+
     def size(self):
-        """Size"""
-        return len(self.connections)
+        """Count only those that have a node id"""
+        self.remove_duplicate_connections()
+        return len(list(filter(lambda x: x.node_id != -1, self.connections)))

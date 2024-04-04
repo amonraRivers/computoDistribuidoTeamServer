@@ -4,6 +4,7 @@ import functools
 from queue import Queue
 from threading import Condition, Thread
 
+from clock import get_clock
 from critical_section_guard import get_csg
 from message import Message
 from message_buffer import MessageBuffer
@@ -35,22 +36,32 @@ class SocketConnection:
         """Handle the incoming messages."""
         conn = self.conn
         while True:
-            res = conn.recv(HEADER).decode(FORMAT)
-            res = res.strip()
-            if res:
-                print("Received", res)
-                res = Message.from_string(res)
-                self.node_id = res.get_node_id()
-                self.mb.put(res)
+            try:
+                res = conn.recv(HEADER).decode(FORMAT)
+                res = res.strip()
+                if res:
+                    print("Received", res)
+                    res = Message.from_string(res)
+                    self.node_id = res.get_node_id()
+                    self.mb.put(res)
+            except ConnectionResetError:
+                print("Connection reset")
+                break
 
     def handle_outgoing(self):
         """Handle the outgoing messages."""
+        clock = get_clock()
 
         while True:
             m = self.out_queue.get()
+            m.lt = clock.stamper()
             m = str(m)
 
-            self.send(m)
+            try:
+                self.send(m)
+            except ConnectionResetError:
+                print("Connection reset")
+                break
 
     def send(self, msg):
         """Send the message."""

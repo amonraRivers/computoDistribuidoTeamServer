@@ -10,10 +10,13 @@ from utils import get_constants
 class Message:
     """Mensaje para el sistmea distribuido"""
 
-    def __init__(self, op: Operation | None, lt: int, t: str = "request"):
+    def __init__(self, op: Operation | None, lt: int, t: str = "request", uuid=None):
         self.operation = op
         self.lt = lt
-        self.uuid = uuid4()
+        if uuid:
+            self.uuid = str(uuid)
+        else:
+            self.uuid = str(uuid4())
         self.server_id = get_constants().get_server_id()
         self.typ = t
 
@@ -28,6 +31,7 @@ class Message:
             "lt": self.lt,
             "server_id": self.server_id,
             "type": self.typ,
+            "uuid": self.uuid,
         }
 
     def get_type(self):
@@ -57,9 +61,13 @@ class Message:
         # print(len(s))
         js = json.loads(s)
         # print(js)
-        o = Message(lt=js.get("lt"), op=Operation.from_dict(js.get("operation")))
+        o = Message(
+            lt=js.get("lt"),
+            op=Operation.from_dict(js.get("operation")),
+            t=js.get("type"),
+            uuid=js.get("uuid"),
+        )
         o.set_node_id(js.get("server_id"))
-        o.set_type(js.get("type"))
         return o
 
     @classmethod

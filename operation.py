@@ -10,9 +10,9 @@ class Operation:
     def __init__(self, action, key, value, uuid=None, owned=False):
         """Constructor"""
         if uuid:
-            self.uuid = uuid
+            self.uuid = str(uuid)
         else:
-            self.uuid = uuid4()
+            self.uuid = str(uuid4())
         self.action = action
         self.value = value
         self.key = key
@@ -24,6 +24,7 @@ class Operation:
             "action": self.action,
             "key": self.key,
             "value": self.value,
+            "uuid": self.uuid,
         }
 
     def __repr__(self):
@@ -36,7 +37,7 @@ class Operation:
         js = json.loads(s)
         if not js:
             return None
-        o = Operation(js.action, js.value, js.key)
+        o = Operation(js.action, js.value, js.key, js.uuid)
         return o
 
     @classmethod
