@@ -55,9 +55,9 @@ class OperationExecutor:
                 print("sending to", msg.get_node_id())
                 csg.set_given_to(msg.get_node_id())
                 self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
-                self.do_operation(op)
                 with self.release_condition:
                     self.release_condition.wait_for(csg.should_release)
+                    self.do_operation(op)
                     csg.reset()
 
             else:

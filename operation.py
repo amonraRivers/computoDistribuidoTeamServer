@@ -45,5 +45,5 @@ class Operation:
         """parse a json string to the operation"""
         if not d:
             return None
-        o = Operation(d.get("action"), d.get("value"), d.get("key"))
+        o = Operation(d.get("action"), d.get("value"), d.get("key"), d.get("uuid"))
         return o
