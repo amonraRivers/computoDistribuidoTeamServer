@@ -39,6 +39,11 @@ class ConnectionPool:
 
     def send_to(self, message, connection_id: int):
         """Send message to a connection"""
-        conns = filter(lambda x: x.node_id == connection_id, self.connections)
+        print("Sending to", connection_id)
+        conns = list(filter(lambda x: x.node_id == connection_id, self.connections))
+        print(len(conns), "conns")
+        if len(conns) > 0:
+            print(conns[0].node_id)
+
         for conn in conns:
             conn.send_to_out_queue(message)

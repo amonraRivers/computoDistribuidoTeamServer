@@ -15,7 +15,6 @@ class ServerConstants:
             for line in lines:
                 line.strip()
                 elements = line.split()
-                print(elements)
                 if elements[0] == "server":
                     self._server = (elements[1], int(elements[2]))
                 elif elements[0] == "serverSocket":

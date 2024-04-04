@@ -9,6 +9,7 @@ class CriticalSectionGuard:
     def __init__(self):
         self.given_to = None
         self.replies = 0
+        self._should_release = False
         self.lock = Lock()
 
     def add_reply(self):
@@ -34,11 +35,22 @@ class CriticalSectionGuard:
         """Reset the guard"""
         self.given_to = None
         self.replies = 0
+        self._should_release = False
 
     def reset(self):
         """Reset the guard"""
         with self.lock:
             self._reset()
+
+    def set_should_release(self):
+        """Should release the guard"""
+        with self.lock:
+            self._should_release = True
+
+    def should_release(self):
+        """Should release the guard"""
+        with self.lock:
+            return self._should_release
 
     def __del__(self):
         self.lock.release()

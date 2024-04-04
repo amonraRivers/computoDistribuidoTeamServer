@@ -1,5 +1,7 @@
 """Setup for the package."""
 
+from threading import Condition
+
 from connection_pool import ConnectionPool
 from message_buffer import MessageBuffer
 from message_processor import MessageProcessor
@@ -19,20 +21,28 @@ def create_server(file_name):
     ips_addresses = cs.get_nodes()
     rpc_server_address = cs.get_server_address()
     server_socket_address = cs.get_server_socket()
+    enter_cs = Condition()
+    release_cs = Condition()
 
     socket_connection_pool = ConnectionPool([])
 
     print("This is the setup_server.py file")
+    print(cs.get_server_id())
     mb = MessageBuffer()
     rb = ResponseBuffer()
     ob = MessageBuffer()
 
     mp = MessageProcessor(mb, ob)
     mp.attach_connection_pool(socket_connection_pool)
+    mp.set_cs_condition(enter_cs)
+    mp.set_release_condition(release_cs)
 
     op = OperationExecutor(ob, rb)
+    op.attach_connection_pool(socket_connection_pool)
+    op.set_cs_condition(enter_cs)
+    op.set_release_condition(release_cs)
 
-    print(ips_addresses)
+    # print(ips_addresses)
     ss = ServerSocket(server_socket_address, mb)
     sc = ClientSocket(ips_addresses, mb)
     rpc = RPCServer(rpc_server_address, mb, rb, socket_connection_pool)

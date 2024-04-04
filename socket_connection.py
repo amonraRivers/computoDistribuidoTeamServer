@@ -38,7 +38,9 @@ class SocketConnection:
             res = conn.recv(HEADER).decode(FORMAT)
             res = res.strip()
             if res:
+                print("Received", res)
                 res = Message.from_string(res)
+                self.node_id = res.get_node_id()
                 self.mb.put(res)
 
     def handle_outgoing(self):
@@ -69,6 +71,8 @@ class SocketConnection:
 
     def send_to_out_queue(self, message):
         """Send the message to the out queue."""
+        print("Sending to out queue")
+        print(message)
         self.out_queue.put(message)
 
     def __eq__(self, other):
