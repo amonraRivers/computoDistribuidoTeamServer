@@ -38,9 +38,10 @@ class SocketConnection:
         while True:
             try:
                 res = conn.recv(HEADER).decode(FORMAT)
+                print("Received", res)
                 res = res.strip()
                 if res:
-                    print("Received", res)
+                    print("[received]", res)
                     res = Message.from_string(res)
                     self.node_id = res.get_node_id()
                     self.mb.put(res)
@@ -56,6 +57,7 @@ class SocketConnection:
             m = self.out_queue.get()
             m.lt = clock.stamper()
             m = str(m)
+            print("Sending", m)
 
             try:
                 self.send(m)
@@ -67,7 +69,6 @@ class SocketConnection:
         """Send the message."""
         conex = self.conn
         message = msg.encode(FORMAT)
-        msg_lenght = len(message)
         message += b" " * (HEADER - len(message))
         conex.send(message)
 

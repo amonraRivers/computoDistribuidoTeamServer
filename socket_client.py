@@ -29,8 +29,6 @@ class ClientSocket:
             th.start()
             starting_threads.append(th)
 
-        for thread in starting_threads:
-            thread.join()
         print("[FINISHED] Client has finished")
 
     def start_thread(self, addr, thread_pool: ConnectionPool):

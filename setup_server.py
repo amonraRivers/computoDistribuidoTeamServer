@@ -46,8 +46,11 @@ def create_server(file_name):
 
     # print(ips_addresses)
     ss = ServerSocket(server_socket_address, mb)
+    print("server socket iniciado")
     sc = ClientSocket(ips_addresses, mb)
+    print("client socket iniciado")
     rpc = RPCServer(rpc_server_address, mb, rb, socket_connection_pool)
+    print("rpc server iniciado")
 
     sc.start(socket_connection_pool)
     ss.start(socket_connection_pool)
