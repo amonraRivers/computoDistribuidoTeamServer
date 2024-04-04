@@ -1,7 +1,7 @@
 """ Reloj lógico de Lamport"""
 
 from utils import get_constants
-
+from threading import Lock
 
 class Clock:
     """Clase que representa un reloj de Lamport."""
@@ -11,21 +11,24 @@ class Clock:
         print("Clock initialized with: ", self.stamp)
         self.comparison = 0
         self.msg = {}
+        self.lock = Lock()
 
     def stamper(self):
         """Incrementa el reloj en 1."""
-        self.stamp = self.stamp + 1
+        with self.lock:
+            self.stamp += 1
         return self.stamp
 
     def sync(self, msg):
         """Sincroniza el reloj con el de otro nodo."""
-        self.msg = msg.lt
-        if self.msg > self.stamp:
-            self.stamp = self.msg + 1
-            print("Syncing... New clock: ", self.stamp)
-        else:
-            print("Clock is already synced")
-
+        with self.lock:
+            self.msg = msg.lt
+            if self.msg > self.stamp:
+                self.stamp = self.msg + 1
+                print("Syncing... New clock: ", self.stamp)
+            else:
+                print("Clock is already synced")
+    
     ## compare not in use
     def compare(self, msg_a, msg_b):
         """Compara dos mensajes y determina cuál es mayor."""
@@ -38,9 +41,7 @@ class Clock:
             self.comparison = 0
             print("B is greater than A")
 
-
 LAMP_CLOCK = None
-
 
 def get_clock():
     """Obtiene las constantes del servidor."""
