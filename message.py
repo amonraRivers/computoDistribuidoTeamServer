@@ -68,6 +68,11 @@ class Message:
         """Create a reply message"""
         return Message(None, lt, "reply")
 
+    @classmethod
+    def create_release(cls, lt: int):
+        """Create a release message"""
+        return Message(None, lt, "release")
+
     def __lt__(self, other):
         if self.lt == other.lt:
             return self.get_node_id() < other.get_node_id()

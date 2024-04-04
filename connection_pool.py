@@ -47,3 +47,7 @@ class ConnectionPool:
 
         for conn in conns:
             conn.send_to_out_queue(message)
+
+    def size(self):
+        """Size"""
+        return len(self.connections)

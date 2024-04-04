@@ -37,10 +37,25 @@ class CriticalSectionGuard:
         self.replies = 0
         self._should_release = False
 
+    def is_given_to(self):
+        """Is given to"""
+        with self.lock:
+            return self.given_to is not None
+
+    def set_given_to(self, who):
+        """Set who is given to"""
+        with self.lock:
+            self.given_to = who
+
     def reset(self):
         """Reset the guard"""
         with self.lock:
             self._reset()
+
+    def get_replies(self):
+        """Get the number of replies"""
+        with self.lock:
+            return self.replies
 
     def set_should_release(self):
         """Should release the guard"""

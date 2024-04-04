@@ -7,6 +7,7 @@ from critical_section_guard import get_csg
 from log import Log
 from message import Message
 from message_buffer import MessageBuffer
+from operation import Operation
 from response_buffer import Response, ResponseBuffer
 from state_machine import StateMachine
 from utils import get_constants
@@ -30,6 +31,13 @@ class OperationExecutor:
         """Start"""
         self.thread.start()
 
+    def should_enter_cs(self):
+        """Should enter critical section"""
+        csg = get_csg()
+        replies = csg.get_replies()
+        print("Replies", replies)
+        return replies >= self.conn_pool.size()
+
     def run(self):
         """Run"""
         while True:
@@ -37,36 +45,51 @@ class OperationExecutor:
             # bloquear hasta que haya una nueva operacion
 
             csg = get_csg()
+
             constants = get_constants()
             msg = self.ob.get()
             op = msg.operation
             print(msg.get_node_id(), constants.get_server_id())
             if msg.get_node_id() != constants.get_server_id():
                 print("sending to", msg.get_node_id())
+                csg.set_given_to(msg.get_node_id())
                 self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
+                self.do_operation(op)
+                with self.release_condition:
+                    self.release_condition.wait_for(csg.should_release)
+                    csg.reset()
+
             else:
                 print("sending to myself")
+                with self.enter_condition:
+                    self.enter_condition.wait_for(self.should_enter_cs)
+                    self.do_operation(op)
+                    self.conn_pool.send_to_all(Message.create_release(0))
+                    csg.reset()
 
-            if op:
-                self.log.append(op)
-                print("Ejecutando operacion", op.uuid)
-                payload = None
-                if op.action == "get":
-                    payload = self.state_machine.get(op.key)
-                elif op.action == "set":
-                    payload = self.state_machine.set(op.key, op.value)
-                elif op.action == "add":
-                    payload = self.state_machine.add(op.key, op.value)
-                elif op.action == "mult":
-                    payload = self.state_machine.mult(op.key, op.value)
-                if op.owned:
-                    res = Response(payload, op.uuid)
-                    self.rb.put(res)
             op = None
 
     def join(self):
         """Join"""
         self.thread.join()
+
+    def do_operation(self, op: Operation):
+        """Do operation"""
+        if op:
+            self.log.append(op)
+            print("Ejecutando operacion", op.uuid)
+            payload = None
+            if op.action == "get":
+                payload = self.state_machine.get(op.key)
+            elif op.action == "set":
+                payload = self.state_machine.set(op.key, op.value)
+            elif op.action == "add":
+                payload = self.state_machine.add(op.key, op.value)
+            elif op.action == "mult":
+                payload = self.state_machine.mult(op.key, op.value)
+            if op.owned:
+                res = Response(payload, op.uuid)
+                self.rb.put(res)
 
     def attach_connection_pool(self, conn_pool: ConnectionPool):
         """Attach connection pool"""
