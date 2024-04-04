@@ -10,7 +10,7 @@ from message_buffer import MessageBuffer
 from response_buffer import Response, ResponseBuffer
 from state_machine import StateMachine
 from utils import get_constants
-
+from clock import get_clock
 
 class OperationExecutor:
     """Operation executor"""
@@ -62,6 +62,7 @@ class OperationExecutor:
                 if op.owned:
                     res = Response(payload, op.uuid)
                     self.rb.put(res)
+                get_clock().stamper()
             op = None
 
     def join(self):
