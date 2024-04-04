@@ -58,7 +58,7 @@ class Message:
         # print(len(s))
         js = json.loads(s)
         # print(js)
-        o = Message(lt=1, op=Operation.from_dict(js.get("operation")))
+        o = Message(lt=js.get("lt"), op=Operation.from_dict(js.get("operation")))
         o.set_node_id(js.get("server_id"))
         o.set_type(js.get("type"))
         return o

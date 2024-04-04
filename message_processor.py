@@ -12,7 +12,7 @@ from clock import get_clock
 class MessageProcessor:
     """Procesador de mensajes"""
 
-    def __init__(self, mb: MessageBuffer, ob: OperationBuffer):
+    def __init__(self, mb: MessageBuffer, ob: MessageBuffer):
         self.mb = mb
         self.ob = ob
         self.thread = Thread(target=self.run)
