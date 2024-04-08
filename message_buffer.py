@@ -15,12 +15,10 @@ class MessageBuffer:
     def put(self, ms: Message):
         """add an operation to teh queue"""
         self.pq.put(ms)
-        print("Agregando mensaje a buffer de mensajes")
 
     def get(self):
         """get the first item"""
         payload = self.pq.get()
-        print("Quitando mensaje a buffer de mensajes")
         return payload
 
     def peek(self):

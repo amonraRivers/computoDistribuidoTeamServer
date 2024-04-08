@@ -50,10 +50,13 @@ class OperationExecutor:
 
             constants = get_constants()
             msg = self.ob.peek()
-            while True:
+            enter = False
+            while not enter:
                 msg = self.ob.peek()
                 op = msg.operation
+                print("Checking if should enter CS")
                 if msg.get_node_id() != constants.get_server_id():
+                    print("Sending reply")
                     self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
                     with self.enter_condition:
                         self.enter_condition.wait()
@@ -61,16 +64,17 @@ class OperationExecutor:
                         if csg.should_release() and msg == self.ob.peek():
                             msg = self.ob.get()
                             csg.reset()
-                            break
+                            enter = True
 
                 else:
+                    print("Esperando entrar a la seccion critica")
                     with self.enter_condition:
                         self.enter_condition.wait()
                         if self.should_enter_cs():
                             msg = self.ob.get()
                             csg.reset()
                             self.conn_pool.send_to_all(Message.create_release(0))
-                            break
+                            enter = True
 
             print("[OperationExecutor] msg timestamp", msg.lt)
             self.do_operation(op)
