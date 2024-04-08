@@ -1,5 +1,5 @@
-server 0.0.0.0 8001
-serverSocket 10.10.18.199 21003
-node 10.10.18.199 21002
 id 1
+server 0.0.0.0 8001
+serverSocket 10.10.4.7 21003
+node 10.10.4.7 21002
 clock 10

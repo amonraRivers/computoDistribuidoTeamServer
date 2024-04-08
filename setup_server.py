@@ -28,8 +28,8 @@ def create_server(file_name):
 
     socket_connection_pool = ConnectionPool([])
 
-    print("This is the setup_server.py file")
-    print(cs.get_server_id())
+    #print("This is the setup_server.py file")
+    #print(cs.get_server_id())
     mb = MessageBuffer()
     rb = ResponseBuffer()
     ob = MessageBuffer()
@@ -44,13 +44,13 @@ def create_server(file_name):
     op.set_cs_condition(enter_cs)
     op.set_release_condition(release_cs)
 
-    # print(ips_addresses)
+    # #print(ips_addresses)
     ss = ServerSocket(server_socket_address, mb)
-    print("server socket iniciado")
+    #print("server socket iniciado")
     sc = ClientSocket(ips_addresses, mb)
-    print("client socket iniciado")
+    #print("client socket iniciado")
     rpc = RPCServer(rpc_server_address, mb, rb, socket_connection_pool)
-    print("rpc server iniciado")
+    #print("rpc server iniciado")
 
     sc.start(socket_connection_pool)
     ss.start(socket_connection_pool)

@@ -8,7 +8,7 @@ class Clock:
 
     def __init__(self):
         self.stamp = get_constants().get_server_clock()
-        print("Clock initialized with: ", self.stamp)
+        #print("Clock initialized with: ", self.stamp)
         self.comparison = 0
         self.msg = {}
         self.lock = Lock()
@@ -25,9 +25,10 @@ class Clock:
             self.msg = msg.lt
             if self.msg > self.stamp:
                 self.stamp = self.msg + 1
-                print("Syncing... New clock: ", self.stamp)
+                #print("Syncing... New clock: ", self.stamp)
             else:
-                print("Clock is already synced")
+                #print("Clock is already synced")
+                pass
     
     ## compare not in use
     def compare(self, msg_a, msg_b):
@@ -36,10 +37,10 @@ class Clock:
         self.msg_b = msg_b
         if self.msg_a.get("stamp") > self.msg_b.get("stamp"):
             self.comparison = 1
-            print("A is greater than B")
+            #print("A is greater than B")
         else:
             self.comparison = 0
-            print("B is greater than A")
+            #print("B is greater than A")
 
 LAMP_CLOCK = None
 

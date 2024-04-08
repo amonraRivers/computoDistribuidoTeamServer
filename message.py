@@ -57,10 +57,10 @@ class Message:
     @classmethod
     def from_string(cls, s):
         """parse a json string to the operation"""
-        # print(s)
-        # print(len(s))
+        # #print(s)
+        # #print(len(s))
         js = json.loads(s)
-        # print(js)
+        # #print(js)
         o = Message(
             lt=js.get("lt"),
             op=Operation.from_dict(js.get("operation")),
@@ -94,11 +94,11 @@ class Message:
         return self.lt > other.lt
 
     def __le__(self, other):
-        print("le")
+        #print("le")
         return self.lt <= other.lt
 
     def __ge__(self, other):
-        print("ge")
+        #print("ge")
         return self.lt >= other.lt
 
     def __ne__(self, other):

@@ -15,7 +15,7 @@ class Log:
     def append(self, op: Operation):
         """append operation to queue"""
         with self._semaphore:
-            print("Agregando a log", op.uuid)
+            #print("Agregando a log", op.uuid)
             self._queue.append(op)
 
     def get_index(self, index):

@@ -37,13 +37,13 @@ class OperationExecutor:
         csg = get_csg()
         replies = csg.get_replies()
         constants = get_constants()
-        print("Replies", replies)
+        #print("Replies", replies)
         return replies >= len(constants.get_nodes())
 
     def run(self):
         """Run"""
         while True:
-            # print(self.state_machine.get_operations_count())
+            # #print(self.state_machine.get_operations_count())
             # bloquear hasta que haya una nueva operacion
 
             csg = get_csg()
@@ -54,9 +54,9 @@ class OperationExecutor:
             while not enter:
                 msg = self.ob.peek()
                 op = msg.operation
-                print("Checking if should enter CS")
+                #print("Checking if should enter CS")
                 if msg.get_node_id() != constants.get_server_id():
-                    print("Sending reply")
+                    #print("Sending reply")
                     self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
                     with self.enter_condition:
                         self.enter_condition.wait()
@@ -67,7 +67,7 @@ class OperationExecutor:
                             enter = True
 
                 else:
-                    print("Esperando entrar a la seccion critica")
+                    #print("Esperando entrar a la seccion critica")
                     with self.enter_condition:
                         self.enter_condition.wait()
                         if self.should_enter_cs():
@@ -76,7 +76,7 @@ class OperationExecutor:
                             self.conn_pool.send_to_all(Message.create_release(0))
                             enter = True
 
-            print("[OperationExecutor] msg timestamp", msg.lt)
+            #print("[OperationExecutor] msg timestamp", msg.lt)
             self.do_operation(op)
             op = None
 
@@ -88,7 +88,7 @@ class OperationExecutor:
         """Do operation"""
         if op:
             self.log.append(op)
-            print("Ejecutando operacion", op.uuid)
+            #print("Ejecutando operacion", op.uuid)
             payload = None
             if op.action == "get":
                 payload = self.state_machine.get(op.key)

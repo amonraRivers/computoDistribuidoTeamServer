@@ -19,7 +19,7 @@ class ServerConstants:
                 if elements[0] == "server":
                     self._server = (elements[1], int(elements[2]))
                 elif elements[0] == "serverSocket":
-                    print("serverSocket")
+                    #print("serverSocket")
                     self._server_socket = (elements[1], int(elements[2]))
                 elif elements[0] == "node":
                     self._nodes.append((elements[1], int(elements[2])))

@@ -21,7 +21,7 @@ class ClientSocket:
 
     def start(self, thread_pool: ConnectionPool):
         """Start the client."""
-        print("[STARTING] Client is starting")
+        #print("[STARTING] Client is starting")
         starting_threads = []
 
         for addr in self.ips:
@@ -29,12 +29,12 @@ class ClientSocket:
             th.start()
             starting_threads.append(th)
 
-        print("[FINISHED] Client has finished")
+        #print("[FINISHED] Client has finished")
 
     def start_thread(self, addr, thread_pool: ConnectionPool):
         """Start the client thread."""
         try:
-            print(f"Trying to connect to {addr}")
+            #print(f"Trying to connect to {addr}")
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect(addr)
             connection = SocketConnection(
@@ -43,9 +43,10 @@ class ClientSocket:
             )
             connection.start()
             thread_pool.add_connection(connection)
-            print(f"Connected to {addr}")
+            #print(f"Connected to {addr}")
         except Exception as e:
-            print(f"Could not connect to {addr} {e}")
+            #print(f"Could not connect to {addr} {e}")
+            pass
 
 
 if __name__ == "__main__":

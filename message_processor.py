@@ -35,16 +35,16 @@ class MessageProcessor:
 
             get_clock().sync(message)
 
-            print("Message received")
-            print(message.get_type(), "request")
+            #print("Message received")
+            #print(message.get_type(), "request")
             if message.get_type() == "request":
-                print("Request received")
+                #print("Request received")
                 self.ob.put(message)
             elif message.get_type() == "reply":
-                print("Reply received")
+                #print("Reply received")
                 csg.add_reply()
             elif message.get_type() == "release":
-                print("Release received")
+                #print("Release received")
                 csg.set_should_release()
 
             with self.enter_condition:

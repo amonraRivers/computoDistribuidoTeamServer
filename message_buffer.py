@@ -10,7 +10,7 @@ class MessageBuffer:
 
     def __init__(self):
         # priority queue of message type
-        self.pq: PriorityQueue[Message] = PriorityQueue(100)
+        self.pq: PriorityQueue[Message] = PriorityQueue()
 
     def put(self, ms: Message):
         """add an operation to teh queue"""

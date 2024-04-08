@@ -29,11 +29,11 @@ class ServerSocket:
 
     def create_connections(self, thread_pool: ConnectionPool):
         """Create the connections."""
-        print("[STARTING] Server is starting")
+        #print("[STARTING] Server is starting")
         self.server.listen()
-        print(f"[LISTENING] Server is listening on {SERVER}")
+        #print(f"[LISTENING] Server is listening on {SERVER}")
         while True:
-            print("esperando")
+            #print("esperando")
             conn, address = self.server.accept()
 
             Thread(
@@ -42,7 +42,7 @@ class ServerSocket:
 
     def create_connection(self, conn, address, thread_pool: ConnectionPool):
         """Create the connection."""
-        print(f"[NEW CONNECTION] {address} connected.")
+        #print(f"[NEW CONNECTION] {address} connected.")
         client = SocketConnection(conn, self.mb)
         client.start()
         thread_pool.add_connection(client)
