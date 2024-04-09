@@ -40,12 +40,12 @@ class SocketConnection:
                 res = self.myreceive().decode(FORMAT)
                 res = res.strip()
                 if res:
-                    #print("[received]", res)
+                    # print("[received]", res)
                     res = Message.from_string(res)
                     self.node_id = res.get_node_id()
                     self.mb.put(res)
             except ConnectionResetError:
-                #print("Connection reset")
+                # print("Connection reset")
                 break
 
     def handle_outgoing(self):
@@ -54,14 +54,14 @@ class SocketConnection:
 
         while True:
             m = self.out_queue.get()
-            m.lt = clock.stamper()
+            # m.lt = clock.stamper()
             m = str(m)
-            #print("Sending", m)
+            # print("Sending", m)
 
             try:
                 self.send(m)
             except ConnectionResetError:
-                #print("Connection reset")
+                # print("Connection reset")
                 break
 
     def send(self, msg):
@@ -94,8 +94,8 @@ class SocketConnection:
 
     def send_to_out_queue(self, message):
         """Send the message to the out queue."""
-        #print("Sending to out queue")
-        #print(message)
+        # print("Sending to out queue")
+        # print(message)
         self.out_queue.put(message)
 
     def __eq__(self, other):

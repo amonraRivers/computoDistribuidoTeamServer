@@ -32,12 +32,12 @@ class OperationExecutor:
         """Start"""
         self.thread.start()
 
-    def should_enter_cs(self):
+    def should_enter_cs(self, msg: Message):
         """Should enter critical section"""
         csg = get_csg()
-        replies = csg.get_replies()
+        replies = csg.get_replies(msg)
         constants = get_constants()
-        #print("Replies", replies)
+        # print("Replies", replies)
         return replies >= len(constants.get_nodes())
 
     def run(self):
@@ -53,30 +53,40 @@ class OperationExecutor:
             enter = False
             while not enter:
                 msg = self.ob.peek()
+                print("[OperationExecutor] msg ", msg)
                 op = msg.operation
-                #print("Checking if should enter CS")
-                if msg.get_node_id() != constants.get_server_id():
-                    #print("Sending reply")
-                    self.conn_pool.send_to(Message.create_reply(0), msg.get_node_id())
-                    with self.enter_condition:
-                        self.enter_condition.wait()
+                # print("Checking if should enter CS")
 
-                        if csg.should_release() and msg == self.ob.peek():
+                if msg.get_node_id() != constants.get_server_id():
+                    print("Sending reply")
+                    self.conn_pool.send_to(
+                        Message.create_reply_from_message(msg), msg.get_node_id()
+                    )
+                    with self.enter_condition:
+                        if not (csg.should_release(msg) and msg == self.ob.peek()):
+                            print("Waiting for release")
+                            self.enter_condition.wait(1)
+
+                        if csg.should_release(msg) and msg == self.ob.peek():
                             msg = self.ob.get()
-                            csg.reset()
+                            csg.reset_release(msg)
                             enter = True
 
                 else:
-                    #print("Esperando entrar a la seccion critica")
+                    # print("Esperando entrar a la seccion critica")
                     with self.enter_condition:
-                        self.enter_condition.wait()
-                        if self.should_enter_cs():
+                        if not (self.should_enter_cs(msg) and msg == self.ob.peek()):
+                            print("Waiting for replies")
+                            self.enter_condition.wait(1)
+                        if self.should_enter_cs(msg) and msg == self.ob.peek():
                             msg = self.ob.get()
-                            csg.reset()
-                            self.conn_pool.send_to_all(Message.create_release(0))
+                            csg.remove_replies(msg)
+                            self.conn_pool.send_to_all(
+                                Message.create_release_from_message(msg)
+                            )
                             enter = True
 
-            #print("[OperationExecutor] msg timestamp", msg.lt)
+            # print("[OperationExecutor] msg timestamp", msg.lt)
             self.do_operation(op)
             op = None
 
@@ -88,7 +98,7 @@ class OperationExecutor:
         """Do operation"""
         if op:
             self.log.append(op)
-            #print("Ejecutando operacion", op.uuid)
+            # print("Ejecutando operacion", op.uuid)
             payload = None
             if op.action == "get":
                 payload = self.state_machine.get(op.key)

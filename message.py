@@ -3,6 +3,7 @@
 import json
 from uuid import uuid4
 
+from clock import get_clock
 from operation import Operation
 from utils import get_constants
 
@@ -50,6 +51,10 @@ class Message:
         """Set the type of the message"""
         self.typ = t
 
+    def get_id(self):
+        """Get the id of the message"""
+        return self.uuid
+
     def __repr__(self):
         x = self.to_dict()
         return json.dumps(x)
@@ -71,16 +76,19 @@ class Message:
         return o
 
     @classmethod
-    def create_reply(cls, lt: int):
+    def create_reply_from_message(cls, msg: "Message"):
         """Create a reply message"""
-        return Message(None, lt, "reply")
+
+        return Message(None, get_clock().stamper(), "reply", msg.get_id())
 
     @classmethod
-    def create_release(cls, lt: int):
+    def create_release_from_message(cls, msg: "Message"):
         """Create a release message"""
-        return Message(None, lt, "release")
+        return Message(None, get_clock().stamper(), "release", msg.get_id())
 
     def __lt__(self, other):
+        print("lower than", self.lt, other.lt)
+        print(self.get_node_id(), other.get_node_id())
         if self.lt == other.lt:
             return self.get_node_id() < other.get_node_id()
         return self.lt < other.lt
@@ -89,16 +97,18 @@ class Message:
         return self.uuid == other.uuid
 
     def __gt__(self, other):
+        print("greater than")
+        print(self.get_node_id(), other.get_node_id())
         if self.lt == other.lt:
             return self.get_node_id() > other.get_node_id()
         return self.lt > other.lt
 
     def __le__(self, other):
-        #print("le")
+        # print("le")
         return self.lt <= other.lt
 
     def __ge__(self, other):
-        #print("ge")
+        # print("ge")
         return self.lt >= other.lt
 
     def __ne__(self, other):

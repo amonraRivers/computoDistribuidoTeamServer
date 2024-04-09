@@ -27,7 +27,7 @@ def get_server_url(filename):
 
 def start_client(filename):
     """Starts the client and sends requests to the server."""
-    if filename:
+    if filename is not None:
         url = get_server_url(filename)
         client = RPCClient(url)
         ####purebas
@@ -49,8 +49,6 @@ def start_client(filename):
 
 
 if __name__ == "__main__":
-    url = get_server_url("ips.txt")
-    url2 = get_server_url("ips2.txt")
     t1 = Thread(target=start_client, args=("ips.txt",))
     t2 = Thread(target=start_client, args=("ips2.txt",))
     t1.start()
