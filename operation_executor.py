@@ -9,24 +9,20 @@ from log import Log
 from message import Message
 from message_buffer import MessageBuffer
 from operation import Operation
-from response_buffer import Response, ResponseBuffer
 from state_machine import StateMachine
 from utils import get_constants
-
 
 class OperationExecutor:
     """Operation executor"""
 
-    def __init__(self, ob: MessageBuffer, rb: ResponseBuffer):
+    def __init__(self, ob: MessageBuffer):
         """Constructor"""
         self.ob = ob
         self.thread = Thread(target=self.run)
         self.state_machine = StateMachine()
-        self.rb = rb
         self.log = Log()
         self.conn_pool: ConnectionPool | None = None
         self.enter_condition: Condition | None = None
-        self.release_condition: Condition | None = None
 
     def start(self):
         """Start"""
@@ -85,36 +81,15 @@ class OperationExecutor:
                                 Message.create_release_from_message(msg)
                             )
                             enter = True
+                            with self.additem_condition:
+                                self.additem_condition.notify() 
 
             # print("[OperationExecutor] msg timestamp", msg.lt)
-            self.do_operation(op)
-            op = None
+            self.log.append(op)
 
     def join(self):
         """Join"""
         self.thread.join()
-
-    def do_operation(self, op: Operation):
-        """Do operation"""
-        if op:
-            self.log.append(op)
-            # print("Ejecutando operacion", op.uuid)
-            payload = None
-            if op.action == "get":
-                payload = self.state_machine.get(op.key)
-            elif op.action == "set":
-                payload = self.state_machine.set(op.key, op.value)
-            elif op.action == "add":
-                payload = self.state_machine.add(op.key, op.value)
-            elif op.action == "mult":
-                payload = self.state_machine.mult(op.key, op.value)
-            elif op.action == "print":
-                print("[LOG]", self.log)
-                payload = str(self.log)
-            if op.owned:
-                res = Response(payload, op.uuid)
-                self.rb.put(res)
-            get_clock().stamper()
 
     def attach_connection_pool(self, conn_pool: ConnectionPool):
         """Attach connection pool"""
@@ -123,7 +98,10 @@ class OperationExecutor:
     def set_cs_condition(self, condition: Condition):
         """Set the condition"""
         self.enter_condition = condition
+    
+    def set_additem_condition(self, condition: Condition):
+        """Set the add item condition"""
+        self.additem_condition = condition
 
-    def set_release_condition(self, condition: Condition):
-        """Set the condition"""
-        self.release_condition = condition
+    def set_log(self, log: Log):
+        shared_log = self.log

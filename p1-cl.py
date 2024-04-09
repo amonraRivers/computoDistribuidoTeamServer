@@ -50,7 +50,7 @@ def start_client(filename):
 
 if __name__ == "__main__":
     t1 = Thread(target=start_client, args=("ips.txt",))
-    t2 = Thread(target=start_client, args=("ips2.txt",))
+    t2 = Thread(target=start_client, args=(None,))
     t1.start()
     t2.start()
     t1.join()
