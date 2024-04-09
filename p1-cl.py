@@ -25,7 +25,7 @@ def get_server_url(filename):
         return url
 
 
-def start_client(filename):
+def start_client(filename, pruebas=True):
     """Starts the client and sends requests to the server."""
     if filename is not None:
         url = get_server_url(filename)
@@ -45,12 +45,13 @@ def start_client(filename):
             a = client.read("a")
             if a > 200000000000:
                 print(client.update("a", 1, "set"))
-        client.print_log()
+        if pruebas:
+            client.print_log()
 
 
 if __name__ == "__main__":
     t1 = Thread(target=start_client, args=("ips.txt",))
-    t2 = Thread(target=start_client, args=("ips2.txt",))
+    t2 = Thread(target=start_client, args=(None, False))
     t1.start()
     t2.start()
     t1.join()
