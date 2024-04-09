@@ -13,6 +13,8 @@ from rpc_server import RPCServer
 from socket_client import ClientSocket
 from socket_server import ServerSocket
 from utils import get_constants
+from operation_sm import OperationStateMachine
+from log import Log
 
 
 def create_server(file_name):
@@ -25,6 +27,7 @@ def create_server(file_name):
     server_socket_address = cs.get_server_socket()
     enter_cs = Condition()
     release_cs = Condition()
+    log = Log()
 
     socket_connection_pool = ConnectionPool([])
 
@@ -37,12 +40,16 @@ def create_server(file_name):
     mp = MessageProcessor(mb, ob)
     mp.attach_connection_pool(socket_connection_pool)
     mp.set_cs_condition(enter_cs)
-    mp.set_release_condition(release_cs)
 
-    op = OperationExecutor(ob, rb)
+    op = OperationExecutor(ob)
     op.attach_connection_pool(socket_connection_pool)
     op.set_cs_condition(enter_cs)
-    op.set_release_condition(release_cs)
+    op.set_additem_condition(release_cs)
+    op.set_log(log)
+
+    osm = OperationStateMachine(rb)
+    osm.set_additem_condition(release_cs)
+    osm.set_log(log)
 
     # #print(ips_addresses)
     ss = ServerSocket(server_socket_address, mb)

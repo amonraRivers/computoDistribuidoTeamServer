@@ -28,6 +28,10 @@ class Log:
 
         return res
 
+    def get_size(self):
+        with self._semaphore:
+            return len(self._queue)
+
     def __repr__(self):
         result = ""
         for op in self._queue:
