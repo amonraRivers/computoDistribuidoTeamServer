@@ -12,6 +12,7 @@ from operation import Operation
 from state_machine import StateMachine
 from utils import get_constants
 
+
 class OperationExecutor:
     """Operation executor"""
 
@@ -81,11 +82,12 @@ class OperationExecutor:
                                 Message.create_release_from_message(msg)
                             )
                             enter = True
-                            with self.additem_condition:
-                                self.additem_condition.notify() 
 
             # print("[OperationExecutor] msg timestamp", msg.lt)
+            print("Entering critical section")
             self.log.append(op)
+            with self.additem_condition:
+                self.additem_condition.notify()
 
     def join(self):
         """Join"""
@@ -98,10 +100,10 @@ class OperationExecutor:
     def set_cs_condition(self, condition: Condition):
         """Set the condition"""
         self.enter_condition = condition
-    
+
     def set_additem_condition(self, condition: Condition):
         """Set the add item condition"""
         self.additem_condition = condition
 
     def set_log(self, log: Log):
-        shared_log = self.log
+        self.log = log

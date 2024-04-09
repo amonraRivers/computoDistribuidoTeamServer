@@ -1,20 +1,21 @@
-#operation_sm
+# operation_sm
 
-from threading import Condition, Thread
 from queue import Queue
+from threading import Condition, Thread
+
+from clock import get_clock
 from log import Log
 from operation import Operation
-from state_machine import StateMachine
-from clock import Clock
 from response_buffer import Response, ResponseBuffer
-from operation_executor import OperationExecutor
+from state_machine import StateMachine
+
 
 class OperationStateMachine:
 
     def __init__(self, rb: ResponseBuffer):
         self.thread = Thread(target=self.run)
         self.state_machine = StateMachine()
-        self.log = None
+        self.log: Log | None = None
         self.additem_condition: Condition | None = None
         self.index = 0
         self.rb = rb
@@ -43,26 +44,23 @@ class OperationStateMachine:
     def set_additem_condition(self, condition: Condition):
         """Set the add item condition"""
         self.additem_condition = condition
-    
+
     def set_log(self, log: Log):
-        self.log=log
+        self.log = log
 
     def start(self):
         self.thread.start()
-    
+
     def join(self):
         self.thread.join()
-    
+
     def run(self):
         while True:
 
-            if self.index >= log.get_size():
-                with self.set_additem_condition:
-                    self.set_additem_condition.wait()
-            if self.index < log.get_size():    
-                op = log.get_index(self.index)
-                do_operation(op)
-                self.index += 1
-
-
-
+            with self.additem_condition:
+                if self.index >= self.log.get_size():
+                    self.additem_condition.wait()
+                if self.index < self.log.get_size():
+                    op = self.log.get_index(self.index)
+                    self.do_operation(op)
+                    self.index += 1
