@@ -4,6 +4,7 @@ import functools
 from queue import Queue
 from threading import Condition, Thread
 
+from clock import get_clock
 from critical_section_guard import get_csg
 from message import Message
 from message_buffer import MessageBuffer
@@ -35,28 +36,52 @@ class SocketConnection:
         """Handle the incoming messages."""
         conn = self.conn
         while True:
-            res = conn.recv(HEADER).decode(FORMAT)
-            res = res.strip()
-            if res:
-                res = Message.from_string(res)
-                self.mb.put(res)
+            try:
+                res = self.myreceive().decode(FORMAT)
+                res = res.strip()
+                if res:
+                    # print("[received]", res)
+                    res = Message.from_string(res)
+                    self.node_id = res.get_node_id()
+                    self.mb.put(res)
+            except ConnectionResetError:
+                # print("Connection reset")
+                break
 
     def handle_outgoing(self):
         """Handle the outgoing messages."""
+        clock = get_clock()
 
         while True:
             m = self.out_queue.get()
+            # m.lt = clock.stamper()
             m = str(m)
+            # print("Sending", m)
 
-            self.send(m)
+            try:
+                self.send(m)
+            except ConnectionResetError:
+                # print("Connection reset")
+                break
 
     def send(self, msg):
         """Send the message."""
         conex = self.conn
         message = msg.encode(FORMAT)
-        msg_lenght = len(message)
         message += b" " * (HEADER - len(message))
         conex.send(message)
+
+    def myreceive(self):
+        """Receive the message."""
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < HEADER:
+            chunk = self.conn.recv(min(HEADER - bytes_recd, HEADER))
+            if chunk == b"":
+                raise RuntimeError("socket connection broken")
+            chunks.append(chunk)
+            bytes_recd = bytes_recd + len(chunk)
+        return b"".join(chunks)
 
     def join(self):
         """Join the connection."""
@@ -69,6 +94,8 @@ class SocketConnection:
 
     def send_to_out_queue(self, message):
         """Send the message to the out queue."""
+        # print("Sending to out queue")
+        # print(message)
         self.out_queue.put(message)
 
     def __eq__(self, other):

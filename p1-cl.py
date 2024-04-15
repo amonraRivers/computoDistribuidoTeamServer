@@ -1,4 +1,5 @@
 import xmlrpc.client
+from threading import Thread
 
 
 ##### cliente #####
@@ -12,6 +13,9 @@ class RPCClient:
     def update(self, key, value, operation):
         return self.client.update(key, value, operation)
 
+    def print_log(self):
+        return self.client.print_logs("a")
+
 
 def get_server_url(filename):
     with open(filename, "r") as file:
@@ -21,14 +25,35 @@ def get_server_url(filename):
         return url
 
 
+def start_client(filename, pruebas=True):
+    """Starts the client and sends requests to the server."""
+    if filename is not None:
+        url = get_server_url(filename)
+        client = RPCClient(url)
+        ####purebas
+        a = client.read("a")
+        if a == 0:
+            print(client.read("a"))
+            print(client.update("a", 10, "set"))
+
+        for i in range(10):
+            print(client.read("a"))  # 10
+            print(client.update("a", 1, "add"))  # True
+            print(client.read("a"))  # 15
+            print(client.update("a", 3, "add"))  # True
+            print(client.read("a"))  # 30
+            a = client.read("a")
+            if a > 200000000000:
+                print(client.update("a", 1, "set"))
+        if pruebas:
+            client.print_log()
+
+
 if __name__ == "__main__":
-    url = get_server_url("ips.txt")
-    client = RPCClient(url)
-    ####purebas
-    print(client.read("a"))  # 10
-    print(client.update("a", 10, "set"))  # True
-    print(client.read("a"))  # 10
-    print(client.update("a", 5, "add"))  # True
-    print(client.read("a"))  # 15
-    print(client.update("a", 2, "mult"))  # True
-    print(client.read("a"))  # 30
+    t1 = Thread(target=start_client, args=("ips.txt",))
+    t2 = Thread(target=start_client, args=(None, False))
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+    print("Finished")

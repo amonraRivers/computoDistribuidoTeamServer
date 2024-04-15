@@ -34,12 +34,12 @@ class ResponseBuffer:
     def put(self, r: Response):
         """send a message to the buffer"""
         self._queue.put(r)
-        print("Agregando respuesta a buffer de respuestas")
+        #print("Agregando respuesta a buffer de respuestas")
 
     def get(self) -> Response:
         """get a message by id"""
         res = None
         res = self._queue.get()
-        print("Quitando respuesta a buffer de respuestas")
+        #print("Quitando respuesta a buffer de respuestas")
 
         return res

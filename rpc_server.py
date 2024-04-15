@@ -4,6 +4,7 @@ from threading import Condition, Thread
 from uuid import uuid4
 from xmlrpc.server import SimpleXMLRPCServer
 
+from clock import get_clock
 from connection_pool import ConnectionPool
 from message import Message
 from message_buffer import MessageBuffer
@@ -26,18 +27,34 @@ class RPCServer:
         self.thread_pool = thread_pool
 
     # read y update
-    def read(self, key):
+    def print_logs(self, key):
         """Read"""
         uuid = uuid4()
         m = Message(
-            Operation(action="get", key=key, value=None, uuid=uuid, owned=True), 1
+            Operation(action="print", key=key, value=None, uuid=uuid, owned=True),
+            lt=get_clock().stamper(),
         )
         self.inbound_message_queue.put(m)
         threads = self.thread_pool
         threads.send_to_all(m)
         # acto criminal,debe bloquear hasta que haya una respuesta
         response = self.outbound_message_queue.get()
-        print("Esperando enviar a hilos", response)
+        #print("Esperando enviar a hilos", response)
+        return response.get_payload()
+
+    def read(self, key):
+        """Read"""
+        uuid = uuid4()
+        m = Message(
+            Operation(action="get", key=key, value=None, uuid=uuid, owned=True),
+            lt=get_clock().stamper(),
+        )
+        self.inbound_message_queue.put(m)
+        threads = self.thread_pool
+        threads.send_to_all(m)
+        # acto criminal,debe bloquear hasta que haya una respuesta
+        response = self.outbound_message_queue.get()
+        #print("Esperando enviar a hilos", response)
         return response.get_payload()
 
     def update(self, key, value, operation):
@@ -49,7 +66,7 @@ class RPCServer:
                 Operation(
                     action=operation, key=key, value=value, uuid=uuid, owned=True
                 ),
-                1,
+                lt=get_clock().stamper(),
             )
 
             self.inbound_message_queue.put(m)
@@ -72,8 +89,8 @@ class RPCServer:
     def _run(self):
         """Run"""
         try:
-            print("Servidor iniciado")
+            #print("Servidor iniciado")
             self.server.serve_forever()
         except KeyboardInterrupt:
-            print("Servidor detenido.")
+            #print("Servidor detenido.")
             self.server.server_close()

@@ -14,10 +14,10 @@ class OperationBuffer:
     def put(self, ms: Operation):
         """add an operation to teh queue"""
         self.pq.put(ms, block=True)
-        print("Agregando operacion a buffer de operaciones")
+        #print("Agregando operacion a buffer de operaciones")
 
     def get(self):
         """get the first item"""
         res = self.pq.get(block=True)
-        print("Quitando operacion a buffer de operaciones")
+        #print("Quitando operacion a buffer de operaciones")
         return res

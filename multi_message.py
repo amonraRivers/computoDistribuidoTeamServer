@@ -17,10 +17,10 @@ class SharedMessageBuffer:
     def read_message(self, thread_id):
         with self.lock:
             if self.message is not None and thread_id not in self.threads_that_read:
-                print(f'Thread {thread_id} lee: {self.message}')
+                #print(f'Thread {thread_id} lee: {self.message}')
                 self.threads_that_read.add(thread_id)
                 if len(self.threads_that_read) == self.total_threads:
-                    print(f'leído por todos, borrando: {self.message}')
+                    #print(f'leído por todos, borrando: {self.message}')
                     self.message = None
                 return True
             return False
